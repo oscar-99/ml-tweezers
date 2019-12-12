@@ -2,6 +2,7 @@ import numpy as np
 from keras.models import load_model
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+from scipy.constants import c
 
 # Fixes issue with matplotlib 3d plotting on mac
 import os
@@ -29,14 +30,12 @@ kb = 1.38064852e-23 # Boltzmann
 eta = 0.001 # Water Viscosity 
 temp = 300 # Temp of Water (K)
 gamma = 6*np.pi*eta*radius
-nPc = 1.33*0.003/3e8
+nPc = 1.33*0.003/c
 
-# Load the model
+# Storage locations of models.
 MODEL_FILE_3DOF = "ot-ml-supp-master/networks/3dof-position/net0/nn3dof_size_256.h5"
 MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
 dof = 3
-
-nn = load_model(MODEL_FILE_3DOF)
 
 
 def force_method(x, net):
@@ -59,6 +58,8 @@ def simulation():
     """
     Simulates the motion of the particle, given an initial position.
     """
+    # Load the model
+    nn = load_model(MODEL_FILE_3DOF)
     # List of positions, velocities and forces
     x = [x0] 
     v = [v0]
@@ -85,29 +86,20 @@ def simulation():
     return (x, v, fx)
 
 
-def plot_output(data):
-    """ 
-    Function that plots output of the simulation. 
+def store(filename, x):
     """
+    Store simulation results. Takes a filename and an array to be stored.
+    """
+    save_location = "data/{}".format(filename)
+    np.savetxt(save_location, x)
 
-    xdata = []
-    ydata = []
-    zdata = []
+def loadup(filename):
+    """
+    Loads the storage file.
+    """
+    save_location = "data/{}".format(filename)
+    return np.loadtxt(save_location)
 
-    for entry in data:
-        xdata.append(entry[0,0])
-        ydata.append(entry[0,1])
-        zdata.append(entry[0,2])
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot3D(xdata, ydata, zdata)
+#(x, v, fx) = simulation()
 
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-
-    plt.show()
-
-(x, v, fx) = simulation()
-plot_output(x)
