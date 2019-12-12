@@ -69,7 +69,6 @@ def simulation():
         # Compute the force
         x1 = x[k]
         f = force_method(x1*1e6, nn)*nPc
-        print(f)
 
         # Deterministic motion
         dx = dt*f/gamma
@@ -90,16 +89,20 @@ def store(filename, x):
     """
     Store simulation results. Takes a filename and an array to be stored.
     """
-    save_location = "data/{}".format(filename)
-    np.savetxt(save_location, x)
+    save_location = "data/{}.npy".format(filename)
+    np.save(save_location, x)
 
 def loadup(filename):
     """
     Loads the storage file.
     """
-    save_location = "data/{}".format(filename)
-    return np.loadtxt(save_location)
+    save_location = "data/{}.npy".format(filename)
+    return np.load(save_location)
 
+"""
+(x, v, fx) = simulation()
 
-#(x, v, fx) = simulation()
-
+store("3dof256x", x)
+store("3dof256v", v)
+store("3dof256fx", fx)
+"""

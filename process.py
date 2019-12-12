@@ -1,6 +1,10 @@
 from scipy.io import loadmat
 import numpy as np 
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 from scipy.constants import c
+
+from simulate import store, loadup
 
 
 def plot_output(data):
@@ -26,3 +30,14 @@ def plot_output(data):
     ax.set_zlabel('Z')
 
     plt.show()
+
+
+def hist(x):
+    """
+    Generates a histogram of forces of the data x.
+    """
+    np.histogram
+
+
+x = loadup("3dof256x")
+print(x)
