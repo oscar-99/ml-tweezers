@@ -8,8 +8,8 @@ from scipy.constants import c
 # Runs simulation using the 5 dof neural network
 # Fixes issue with matplotlib 3d plotting on mac
 import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
+#os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['PATH']
 
 # Particle Properties
 n_part = 1.59 # range: 1.33 - 2.0
@@ -34,7 +34,7 @@ f0 = np.zeros((1,3))
 
 # Simulation parameters
 dt = 1e-4
-tfin = 1
+tfin = 10
 
 
 def simulate(radius, n, net):

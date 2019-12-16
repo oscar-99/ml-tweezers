@@ -11,18 +11,17 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # Uses trained network to dynamically simulate particle
 
 # Particle properties 
-radius = 1e-6 # metres
+radius = 1.0e-6
 wavelength = 1064e-9
 n_particle = 1.59
 n_medium = 1.33
-
 
 # Start location and Time Step
 x0 = np.zeros((1,3))
 v0 = np.zeros((1,3))
 f0 = np.zeros((1,3))
-dt = 1e-4
-tfin = 1
+dt = 0.5e-3
+tfin = 10
 times = np.arange(0,tfin,dt)
 
 
@@ -30,60 +29,46 @@ times = np.arange(0,tfin,dt)
 kb = 1.38064852e-23 # Boltzmann
 eta = 0.001 # Water Viscosity 
 temp = 300 # Temp of Water (K)
-power = 0.02 # Power of Laser
 gamma = 6*np.pi*eta*radius
-nPc = 1.33*power/c
+nPc = 1.33*0.003/c
 
 # Storage locations of models.
-MODEL_FILE_3DOF = "ot-ml-supp-master/networks/3dof-position/net9/nn3dof_size_256.h5"
-
-# 5 dof model includes: Radius (Units: microns, range: 0.1 to 1)
-# Refractive index (range: 1.33 to 2)
+MODEL_FILE_3DOF = "ot-ml-supp-master/networks/3dof-position/net0/nn3dof_size_256.h5"
 MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
+dof = 3
 
 
-def force_method(x, net, dof):
+def force_method(x, net):
     """
     Returns the force by using prediction from neural net.
 
-    Input: array of positions (in microns), a neural network and degrees of freedom
+    Takes in standard array and converts to array in array used by keras.
 
-    Output: array of forces in newtons
+    Output is array in array of force
     """
-    # 3 dof outputs in units 1000Q (Q is trapping efficiency).
     if dof == 3:
-        f = net.predict(x)*nPc
-        
-    # 5 dof unit conversion (radius_particle_mu).^2*(index_particle-1.33)*Q/index_medium.
+        return net.predict(x)
+
     if dof == 5:
-        x = np.array([np.append(x[0], [radius*1e6, n_particle])])
-        # Radius is in microns.
-        f = net.predict(x)*((radius*1e6)**2*(n_particle-1.33))*0.02/3e8
-    
-    # Unit conversion from trap efficiency to force.
-    return f
+        x = np.array([np.append(x[0], [n_particle, radius])])
+        return net.predict(x)/20
+        
 
-
-def simulation(dof):
+def simulation():
     """
     Simulates the motion of the particle, given an initial position.
     """
     # Load the model
-    if dof == 3:
-        nn = load_model(MODEL_FILE_3DOF)
-
-    if dof == 5:
-        nn = load_model(MODEL_FILE_5DOF)
-    # List of positions, velocities and forces.
+    nn = load_model(MODEL_FILE_3DOF)
+    # List of positions, velocities and forces
     x = [x0] 
     v = [v0]
     fx = [f0]
    
     for k in range(times.size):
-        # Compute the force.
+        # Compute the force
         x1 = x[k]
-        # Pass distance in microns.
-        f = force_method(x1*1e6, nn, dof)
+        f = force_method(x1*1e6, nn)*nPc
 
         # Deterministic motion
         dx = dt*f/gamma
@@ -96,11 +81,7 @@ def simulation(dof):
         x.append(x1)
         v.append(dx/dt)
         fx.append(f)
-     
-        if (k + 1) % 1000 == 0:
-            print("{}/{} points computed".format((k+1), times.size))
     
-    print("Simulation complete.")
     return (x, v, fx)
 
 
@@ -111,7 +92,6 @@ def store(filename, x):
     save_location = "data/{}.npy".format(filename)
     np.save(save_location, x)
 
-
 def loadup(filename):
     """
     Loads the storage file.
@@ -119,12 +99,10 @@ def loadup(filename):
     save_location = "data/{}.npy".format(filename)
     return np.load(save_location)
 
+"""
+(x, v, fx) = simulation()
 
-dof = 5
-(x, v, fx) = simulation(dof)
-
-
-store("5dof256x", x)
-store("5dof256v", v)
-store("5dof256fx", fx)
-
+store("3dof256x", x)
+store("3dof256v", v)
+store("3dof256fx", fx)
+"""
