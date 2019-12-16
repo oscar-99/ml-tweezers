@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 from keras.models import load_model
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
@@ -33,7 +34,7 @@ f0 = np.zeros((1,3))
 
 # Simulation parameters
 dt = 1e-4
-tfin = 10
+tfin = 1
 
 
 def simulate(radius, n, net):
@@ -46,9 +47,9 @@ def simulate(radius, n, net):
     """
 
     x = [x0]
-    v = [v0]
     fx = [f0]
-    nsteps = int(np.ceil(tfin/dt))
+    nsteps = int(np.ceil(tfin/dt)) 
+
     for k in range(nsteps):
         x1 = x[k]
 
@@ -62,14 +63,14 @@ def simulate(radius, n, net):
 
         # Store position, velocity and forces
         x.append(x1)
-        v.append(dx/dt)
+        # v.append(dx/dt)
         fx.append(f)
 
         if (k + 1) % 1000 == 0:
             print("{}/{} points computed".format((k+1), nsteps))
 
     print("Simulation Complete")
-    return x, v, fx
+    return x, fx
 
 
 def force_comp(x, radius, n, net):
@@ -99,24 +100,44 @@ def store(filename, x):
 
 def generate_data():
     """
-    Function to run the simulation code 
+    Function to run the simulation code and save results using h5
     """
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
-    radii = []
+    
+    SAVE_LOC = "data/data.h5"
+
+    # Initialise datasets
+    with h5py.File(SAVE_LOC, "w") as file:    
+        file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
+        file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
 
     for i in range(10):
+        # Run a simulation for radius
         radius = 1e-7
         radius *= (i+1)
-        radii.append(radius)
 
         print("Beginning Simulation For Radius={}m".format(radius))
-        x, v, fx = simulate(radius, n_part, nn)
+        x, fx = simulate(radius, n_part, nn)
 
-        # Store results
-        store("rad{}x".format(radius), x)
-        store("rad{}v".format(radius), v)
-        store("rad{}fx".format(radius), fx)
+        # Transform data into a n x 5 matrix
+        x = np.array(x)
+        x = x[:,0,:]
+        y = np.c_[x, radius*np.ones((x.shape[0],1)), n_part*np.ones((x.shape[0], 1))]
 
-    store("radii", np.array([radii]))
+        fx = np.array(fx)
+        fx = fx[:,0,:]
+        fy = np.c_[fx, radius*np.ones((fx.shape[0],1)), n_part*np.ones((fx.shape[0], 1))]
 
+        with h5py.File(SAVE_LOC, "a") as file:
+            # Store results
+            file["pos"].resize((file["pos"].shape[0] + y.shape[0], 5))
+            file["pos"][-y.shape[0]:] = y
+
+            file["force"].resize((file["force"].shape[0] + fy.shape[0], 5))
+            file["force"][-fy.shape[0]:] = fy
+            
+
+
+
+generate_data()

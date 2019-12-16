@@ -1,4 +1,5 @@
 from scipy.io import loadmat
+import h5py
 import numpy as np 
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
@@ -83,10 +84,21 @@ def hist(x, axis):
     plt.show()
     return counts, bins
 
-
-x = loadup("5dofx")
-fx = loadup("5doffx")
+"""
+x = loadup("posdata")
+fx = loadup("forcedata")
 
 plot_output(x)
-hist(fx, "x")
-hist(fx, "z")
+hist(x, "x")
+hist(x, "y")
+hist(x, "z")
+"""
+
+with h5py.File("data/data.h5", "r") as file:
+    y = np.array(file["pos"])
+    print(y)
+    print(y.shape)
+
+    fx = np.array(file["force"])
+    print(fx)
+    print(fx.shape)
