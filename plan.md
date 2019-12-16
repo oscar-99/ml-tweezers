@@ -49,6 +49,8 @@
 
 - Q is efficiency of trap, dimensionless
 
+# https://www.pdx.edu/nanogroup/sites/www.pdx.edu.nanogroup/files/Constructing%20An%20Optimized%20Optical%20Tweezers.pdf
+
 # Tasks
 - Learn some linux to get getafix working
 - Fix 5 DOF 
