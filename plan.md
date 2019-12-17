@@ -21,6 +21,7 @@
   - Features of these varying in size/refractive index
   - Predicting refractive index and radius together 
   - Histogram gives some amount of information about the how the forces are distributed. Which can vary between size/refractive index.
+  - https://www.tensorflow.org/tutorials/structured_data/feature_columns#bucketized_columns
 - Time ordered?
   - Accuracy benefits, training time, memory?
   - What information does time ordering capture?
@@ -63,4 +64,5 @@
 - Fourier transform?
 - Build some test models.
 - Generate large dataset on getafix.
+- Research time structured architecture.
 
