@@ -14,7 +14,7 @@
 
 ## Features 
 - Forces or forces and positons? (other variables?)
-  - Position sampling is far lower.
+  - Position sampling is far lower frequency: probably not useful in final model.
   - Just forces will need time series structure.   Probably a novel move.
   - Which forces (radial, axial etc.)
 - Force histograms or frequency plots
@@ -26,6 +26,7 @@
   - What information does time ordering capture?
     - How much past information is valuable?
   - Data generation
+  - 
 ## Outputs
 - Refractive index
   - Other variables (particle size?)
@@ -33,11 +34,13 @@
   - Do only specific values matter corresponding to materials?
 - Varying in time refractive index?
 
-## Network Architecture 
+
+# Network Architecture 
 - Type of network?
   - LSTM, other RNN?
 - Layers, nodes, connectivity?
 - More modern Architecture?
+
 
 # Measurement of the Index of Refraction of Single Microparticles
 
@@ -53,9 +56,11 @@
 
 # Tasks
 - Learn some linux to get getafix working
-- Fix 5 DOF 
-  - Generate some data
-- Force histogram script
-- Store simulated data so I dont have to keep simulating 
+- <s>Fix 5 DOF </s>
+  - <s>Generate some data</s>
+- <s>Force histogram script</s>
+- <s>Store simulated data so I dont have to keep simulating </s>
 - Fourier transform?
+- Build some test models.
+- Generate large dataset on getafix.
 

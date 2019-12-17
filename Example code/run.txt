@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=sphere_sri
+#SBATCH --time=0-12:00       # time (D-HH:MM)
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=3G
+#SBATCH --array=1-100
+#SBATCH --exclude=smp-6-0,smp-7-0
+
+wdir='/data/uqilento/Jan02-1'
+
+mkdir -p ${wdir}
+cd ${wdir}
+cp '/data/uqilento/phd2019/MlSpheres/sphere_size_ri/job.m' 'job.m'
+mkdir -p 'output'
+
+srun matlab -singleCompThread -nodisplay -nojvm -nosplash \
+    -r "job(${SLURM_ARRAY_TASK_ID}, ${SLURM_ARRAY_TASK_COUNT})"
+

@@ -6,9 +6,12 @@ from mpl_toolkits import mplot3d
 from scipy.constants import c
 
 # Runs simulation using the 5 dof neural network
-# Fixes issue with matplotlib 3d plotting on mac
+
 import os
-#os.environ['KMP_DUPLICATE_LIB_OK']='True'
+# Fixes issue with matplotlib 3d plotting on mac
+# os.environ['KMP_DUPLICATE_LIB_OK']='True
+
+# Fixes problem with numpy dlls on windows
 os.environ['PATH']
 
 # Particle Properties
@@ -34,7 +37,7 @@ f0 = np.zeros((1,3))
 
 # Simulation parameters
 dt = 1e-4
-tfin = 10
+tfin = 1.01 # Generate 100 more points than needed so first 100 can be discarded.
 
 
 def simulate(radius, n, net):
@@ -100,7 +103,7 @@ def store(filename, x):
 
 def generate_data():
     """
-    Function to run the simulation code and save results using h5
+    Function to run the simulation code and save results using .h5 file.
     """
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
@@ -112,21 +115,22 @@ def generate_data():
         file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
         file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
 
-    for i in range(10):
+    simulations = 500
+    for i in range(simulations):
         # Run a simulation for radius
-        radius = 1e-7
-        radius *= (i+1)
-
-        print("Beginning Simulation For Radius={}m".format(radius))
+        radius = np.random.uniform(0.1, 1)*1e-6
+        print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
         x, fx = simulate(radius, n_part, nn)
 
         # Transform data into a n x 5 matrix
         x = np.array(x)
         x = x[:,0,:]
+        x = x[101:, :]
         y = np.c_[x, radius*np.ones((x.shape[0],1)), n_part*np.ones((x.shape[0], 1))]
 
         fx = np.array(fx)
         fx = fx[:,0,:]
+        fx = fx[101:,:]
         fy = np.c_[fx, radius*np.ones((fx.shape[0],1)), n_part*np.ones((fx.shape[0], 1))]
 
         with h5py.File(SAVE_LOC, "a") as file:
@@ -136,8 +140,18 @@ def generate_data():
 
             file["force"].resize((file["force"].shape[0] + fy.shape[0], 5))
             file["force"][-fy.shape[0]:] = fy
-            
 
+    print("All Simulations Complete")
 
+"""
+MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
+nn = load_model(MODEL_FILE_5DOF)
+x, fx = simulate(radius, n_part, nn)
+x = np.array(x)
+x = x[:,0,:]
+x = x[101:, :]
+print(x)
+print(x.shape)
+"""
 
 generate_data()

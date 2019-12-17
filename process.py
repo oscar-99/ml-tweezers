@@ -25,6 +25,8 @@ def loadup1(filename):
 def loadup2(tag):
     """
     Loads the dataset tagged with tag from the data.h5 file in the data folder and returns it as an array.
+
+    Tag is "force" or "pos"
     """
     with h5py.File("data/data.h5", "r") as file:
         return np.array(file[tag])
@@ -56,6 +58,10 @@ def plot_output(data):
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
 
+    ax.set_xlim3d(-10e-8, 10e-8)
+    ax.set_ylim3d(-10e-8, 10e-8)
+    ax.set_zlim3d(0, 50e-8)
+
     plt.show()
 
 
@@ -68,19 +74,19 @@ def hist(x, axis):
 
     if axis == "x":
         counts, bins = np.histogram(xdata, bins=100)
-        plt.hist(xdata, bins = 100)
+        plt.hist(xdata, bins = 50)
         plt.title("x Axis Force Histogram")
         plt.xlabel("Force (N)")
 
     if axis == "y":
         counts, bins = np.histogram(ydata, bins=100)
-        plt.hist(ydata, bins = 100)
+        plt.hist(ydata, bins = 50)
         plt.title("y Axis Force Histogram")
         plt.xlabel("Force (N)")
 
     if axis == "z":
         counts, bins = np.histogram(zdata, bins=100)
-        plt.hist(zdata, bins = 100)
+        plt.hist(zdata, bins = 50)
         plt.title("Axial Force Histogram")
         plt.xlabel("Force (N)")
 
@@ -88,17 +94,12 @@ def hist(x, axis):
     return counts, bins
 
 """
-x = loadup1("posdata")
-fx = loadup1("forcedata")
-
-plot_output(x)
-hist(x, "x")
-hist(x, "y")
-hist(x, "z")
-"""
-
 x = loadup2("pos")
-hist(x, "x")
-print(x.shape)
+x = x[:10000, :3]
+print(x)
+plot_output(x)
+hist(x, "z")
+
 fx = loadup2("force")
-print(fx.shape)
+hist(fx, "z")
+"""
