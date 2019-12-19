@@ -1,5 +1,5 @@
 import numpy as np
-from process import loadup2
+from process import loadup
 import matplotlib.pyplot as plt
 
 import tensorflow as tf
@@ -14,10 +14,10 @@ def data_clean():
     """
 
     # Load forces and positions and shuffle data
-    fx = loadup2("force")
+    fx = loadup("data", "force")
     fx = fx[:, :3] *1e12 # pN
 
-    x = loadup2("pos")
+    x = loadup("data", "pos")
     x = x[:, :4]*1e6 # Microns um
 
     data = np.c_[fx, x]
@@ -49,6 +49,7 @@ def build_model():
     model.compile(optimizer='adam', loss='mse', metrics=['mae', 'mape'])
 
     return model
+
 
 training_data, training_targets, testing_data, testing_targets = data_clean()
 

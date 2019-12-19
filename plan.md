@@ -65,4 +65,7 @@
 - Build some test models.
 - Generate large dataset on getafix.
 - Research time structured architecture.
+- Generate some time series plots of forces
+- Generate some histograms of forces
+- Run some time series analysis
 

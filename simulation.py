@@ -108,17 +108,17 @@ def generate_data():
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
-    SAVE_LOC = "data/data.h5"
+    SAVE_LOC = "data/discrete_data.h5"
 
     # Initialise datasets
     with h5py.File(SAVE_LOC, "w") as file:    
         file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
         file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
 
-    simulations = 500
+    simulations = 10
     for i in range(simulations):
         # Run a simulation for radius
-        radius = np.random.uniform(0.1, 1)*1e-6
+        radius = (i%10+1)*1e-7
         print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
         x, fx = simulate(radius, n_part, nn)
 

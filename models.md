@@ -24,6 +24,7 @@
   - Equivalence with CNN?
   - Maybe start with predicting forces rather than radius
   - Model is shown snippets and then predicts?
+  - Model the time series then drop into ml 
 
 
 https://www.manning.com/books/deep-learning-with-python
