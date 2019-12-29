@@ -38,8 +38,8 @@ def data_clean():
     return training_data, training_targets, testing_data, testing_targets
 
 
-def build_model():
-    """ Builder function for keras model. """
+def modelmk1():
+    """ Builder function for the mk1 model. """
     size = 64
     model = keras.Sequential([
     keras.layers.Dense(size, activation="relu", input_shape=(features,)),
@@ -51,23 +51,5 @@ def build_model():
     return model
 
 
-training_data, training_targets, testing_data, testing_targets = data_clean()
-
-
-model = build_model()
-model.summary()
-
-# Add in early exit?
-
-
-EPOCHS = 10
-model.fit(training_data, training_targets, epochs=EPOCHS, validation_data=(testing_data, testing_targets))
-
-
-model.save("models/baseE10.h5")
-test_predict = model.predict(testing_data)
-print(test_predict)
-plt.scatter(testing_targets, test_predict)
-plt.xlabel("True Values")
-plt.ylabel("Predictions")
-plt.show()
+def modelmk2():
+    """ Builder function for the mk2 model """

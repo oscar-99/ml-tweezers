@@ -1,5 +1,5 @@
 # Models
-- mk 1 - baseline simple model
+- Mk 1 - baseline simple model
     - Architecture:
       - ANN, multiple layers
     - Data
@@ -11,6 +11,21 @@
         - Could also possibly centre particle at eq.
     - Output:
       - Continuous range of radii from 0.1 to 1 micron.
+
+- Mk 2 - baseline convolution model
+  - Architecture:
+    - CNN time series classification
+  - Data:
+    - Axial force time series with 1000 points.
+    - Evenly spaced radii by 0.1 um from 0.1 to 1 um
+    - Randomly sample from the radii
+    - Time series  
+    - Can be extended to include another force axis.
+  - Output:
+    - Discrete range of radii.
+  - Can be used to produce a pretrained network for regression network.
+
+
     
 - Time structured data
   - https://www.tensorflow.org/tutorials/structured_data/time_series
