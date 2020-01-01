@@ -14,21 +14,13 @@ def store(filename, x):
     np.save(save_location, x)
 
 
-def loadup1(filename):
-    """
-    Loads up npy storage files.
-    """
-    save_location = "data/{}.npy".format(filename)
-    return np.load(save_location)
-
-
-def loadup2(tag):
+def loadup(filename, tag):
     """
     Loads the dataset tagged with tag from the data.h5 file in the data folder and returns it as an array.
 
     Tag is "force" or "pos"
     """
-    with h5py.File("data/data.h5", "r") as file:
+    with h5py.File("data/{}.h5".format(filename), "r") as file:
         return np.array(file[tag])
 
 
@@ -94,12 +86,12 @@ def hist(x, axis):
     return counts, bins
 
 """
-x = loadup2("pos")
+x = loadup("pos")
 x = x[:10000, :3]
 print(x)
 plot_output(x)
 hist(x, "z")
 
-fx = loadup2("force")
+fx = loadup("force")
 hist(fx, "z")
 """

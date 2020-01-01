@@ -1,5 +1,5 @@
 # Models
-- mk 1 - baseline simple model
+- Mk 1 - baseline simple model
     - Architecture:
       - ANN, multiple layers
     - Data
@@ -11,6 +11,21 @@
         - Could also possibly centre particle at eq.
     - Output:
       - Continuous range of radii from 0.1 to 1 micron.
+
+- Mk 2 - baseline convolution model
+  - Architecture:
+    - CNN time series classification
+  - Data:
+    - Axial force time series with 1000 points.
+    - Evenly spaced radii by 0.1 um from 0.1 to 1 um
+    - Randomly sample from the radii
+    - Time series  
+    - Can be extended to include another force axis.
+  - Output:
+    - Discrete range of radii.
+  - Can be used to produce a pretrained network for regression network.
+
+
     
 - Time structured data
   - https://www.tensorflow.org/tutorials/structured_data/time_series
@@ -22,8 +37,11 @@
   - https://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/
   - https://arxiv.org/pdf/1809.04356.pdf - review 
   - Equivalence with CNN?
+    - Basically very similar to image data kinda
   - Maybe start with predicting forces rather than radius
+  - Model is shown snippets and then predicts how much is needed to capture time information
   - Model is shown snippets and then predicts?
+  - Model the time series then drop into ml 
 
 
 https://www.manning.com/books/deep-learning-with-python

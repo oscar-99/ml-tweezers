@@ -1,7 +1,7 @@
 # Plan 
 
 ## Generate data
-- Run simulations for different refractiove indices/sizes
+- Run simulations for different refractive indices/sizes
     - OTT or Neural Net simulations?
       - Amount of data needed?
       - How many refractive indices?
@@ -13,7 +13,7 @@
         - T matrix method
 
 ## Features 
-- Forces or forces and positons? (other variables?)
+- Forces or forces and positions? (other variables?)
   - Position sampling is far lower frequency: probably not useful in final model.
   - Just forces will need time series structure.   Probably a novel move.
   - Which forces (radial, axial etc.)
@@ -65,4 +65,7 @@
 - Build some test models.
 - Generate large dataset on getafix.
 - Research time structured architecture.
+- Generate some time series plots of forces
+- Generate some histograms of forces
+- Run some time series analysis
 

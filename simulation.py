@@ -8,10 +8,10 @@ from scipy.constants import c
 # Runs simulation using the 5 dof neural network
 
 import os
-# Fixes issue with matplotlib 3d plotting on mac
+# Fixes issue with matplotlib 3d plotting on my mac
 # os.environ['KMP_DUPLICATE_LIB_OK']='True
 
-# Fixes problem with numpy dlls on windows
+# Fixes problem with numpy dlls on windows (for my pc)
 os.environ['PATH']
 
 # Particle Properties
@@ -37,7 +37,7 @@ f0 = np.zeros((1,3))
 
 # Simulation parameters
 dt = 1e-4
-tfin = 1.01 # Generate 100 more points than needed so first 100 can be discarded.
+tfin = .11 # Generate 100 more points than needed so first 100 can be discarded.
 
 
 def simulate(radius, n, net):
@@ -108,17 +108,18 @@ def generate_data():
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
-    SAVE_LOC = "data/data.h5"
+    SAVE_LOC = "data/discrete_data.h5"
 
     # Initialise datasets
     with h5py.File(SAVE_LOC, "w") as file:    
         file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
         file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
 
-    simulations = 500
+    simulations = 1000
+
     for i in range(simulations):
         # Run a simulation for radius
-        radius = np.random.uniform(0.1, 1)*1e-6
+        radius = np.random.randint(1,11)*1e-7
         print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
         x, fx = simulate(radius, n_part, nn)
 
@@ -142,16 +143,5 @@ def generate_data():
             file["force"][-fy.shape[0]:] = fy
 
     print("All Simulations Complete")
-
-"""
-MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
-nn = load_model(MODEL_FILE_5DOF)
-x, fx = simulate(radius, n_part, nn)
-x = np.array(x)
-x = x[:,0,:]
-x = x[101:, :]
-print(x)
-print(x.shape)
-"""
 
 generate_data()
