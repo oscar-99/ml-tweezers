@@ -119,7 +119,7 @@ def generate_data():
 
     for i in range(simulations):
         # Run a simulation for radius
-        radius = np.random.randint(1,11)*1e-7
+        radius = 2*np.random.randint(1,6)*1e-7
         print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
         x, fx = simulate(radius, n_part, nn)
 

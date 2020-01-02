@@ -7,12 +7,15 @@
 - Image Orientation Estimation with
 Convolutional Networks: https://lmb.informatik.uni-freiburg.de/Publications/2015/FDB15/image_orientation.pdf
 ### Classification
-- Deep learning for time series classification: a review: https://arxiv.org/pdf/1809.04356.pdf
+- Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
+- Time Series Classification from Scratch with Deep
+Neural Networks: A Strong Baseline (2016) https://arxiv.org/pdf/1611.06455.pdf
 - A time delay neural network architecture for efficient modeling of long
 temporal contexts: https://www.danielpovey.com/files/2015_interspeech_multisplice.pdf
 - Phenome Recognition Using Time Delay Neural Network: http://www.cs.toronto.edu/~fritz/absps/waibelTDNN.pdf
 - Deep Residual Learning for Image Recognition: https://arxiv.org/pdf/1512.03385.pdf
 - Deep Learning for Time-Series Analysis: https://arxiv.org/pdf/1701.01887.pdf
+- Transfer learning for time series classification: https://arxiv.org/pdf/1811.01533.pdf
 ## Misc
 - UCR Time Series Classification: https://arxiv.org/pdf/1809.04356.pdf
 ## Tutorials

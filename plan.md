@@ -17,6 +17,7 @@
   - Position sampling is far lower frequency: probably not useful in final model.
   - Just forces will need time series structure.   Probably a novel move.
   - Which forces (radial, axial etc.)
+  - Normalisation of forces. z-normalisation?
 - Force histograms or frequency plots
   - Features of these varying in size/refractive index
   - Predicting refractive index and radius together 
@@ -68,4 +69,5 @@
 - Generate some time series plots of forces
 - Generate some histograms of forces
 - Run some time series analysis
+- Generate some data for changing 
 

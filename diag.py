@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 f = loadup("discrete_data","force")
 
-def plot_time_series():
+def plot_time_series(x, y):
     """
     Plot some of the time series for each radius.
     """
@@ -13,15 +13,18 @@ def plot_time_series():
     t_tot = n_points*dt
     t = np.arange(0, t_tot, dt)
 
-    for i in range(10):
+    for i in range(x*y):
         fz = f[i*n_points:int((i+1)*n_points), 2]*1e12
-        fx = f[i*n_points:int((i+1)*n_points), 0]*1e12
+        fzmean = np.mean(fz)
+        fzvar = np.var(fz)
+        fznorm = (fz - fzmean )/np.sqrt(fzvar)
         radius = f[i*n_points + 1, 3]*1e6
-        plt.subplot(2,5,i+1)
-        plt.subplots_adjust(wspace=0.4, hspace=0.2)
-        plt.plot(t, fz, "b", lw=0.2)
+        plt.subplot(y,x,i+1)
+        plt.subplots_adjust(wspace=0.4, hspace=0.4)
+        plt.plot(t, fznorm, "b", lw=0.2)
         # plt.plot(t, fx, "r", lw=0.2)
         plt.title("Force vs Time, Radius {:.3f} um".format(radius))
+        plt.ylim([-3,3])
         plt.ylabel("Force (pN)")
         plt.xlabel("Time (s)")
 
@@ -50,5 +53,5 @@ def stats_analysis():
 
 # Histogram diagnosics
 
-plot_time_series()
+plot_time_series(6,3)
 stats_analysis()

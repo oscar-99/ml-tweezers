@@ -12,9 +12,20 @@
     - Output:
       - Continuous range of radii from 0.1 to 1 micron.
 
-- Mk 2 - baseline convolution model
+- Mk 2 - ResNet Model
+  - Based off of https://arxiv.org/pdf/1809.04356.pdf.
   - Architecture:
-    - CNN time series classification
+    - Conv Block Structure:
+      - Conv Layer ker=8 -> Normalisation -> ReLU
+      - Conv Layer ker=5 -> Normalisation -> ReLU
+      - Conv Layer ker=3 -> Normalisation -> ReLU
+    - 3 Conv blocks
+      - Number of filters in each block respectively: (64, 128, 128)
+    - Output: Global Average Pooling Layer -> Softmax
+    - Optimisation: Adam 
+      - Learning rate: 0.001
+    - Loss:
+      - Cross Entropy
   - Data:
     - Axial force time series with 1000 points.
     - Evenly spaced radii by 0.1 um from 0.1 to 1 um
