@@ -12,47 +12,35 @@
     - Output:
       - Continuous range of radii from 0.1 to 1 micron.
 
-- Mk 2 - ResNet Model
-  - Based off of https://arxiv.org/pdf/1809.04356.pdf.
-  - Architecture:
-    - Conv Block Structure:
-      - Conv Layer ker=8 -> Normalisation -> ReLU
-      - Conv Layer ker=5 -> Normalisation -> ReLU
-      - Conv Layer ker=3 -> Normalisation -> ReLU
-    - 3 Conv blocks
-      - Number of filters in each block respectively: (64, 128, 128)
-    - Output: Global Average Pooling Layer -> Softmax
-    - Optimisation: Adam 
-      - Learning rate: 0.001
-    - Loss:
-      - Cross Entropy
-  - Data:
-    - Axial force time series with 1000 points.
-    - Evenly spaced radii by 0.1 um from 0.1 to 1 um
-    - Randomly sample from the radii
-    - Time series  
-    - Can be extended to include another force axis.
-  - Output:
-    - Discrete range of radii.
-  - Can be used to produce a pretrained network for regression network.
+# Mk 2 - ResNet Model
+Based off of https://arxiv.org/pdf/1809.04356.pdf.
+
+## Architecture:
+A ResNet deep learning network for univariate time series.
+### Convolutional Layers
+Based on 3 convolution bloacks with the number of filters for the convolutions in each block being respectively: (64, 128, 128).
+
+Conv Block Structure:
+Conv Layer ker=8 -> Normalisation -> ReLU -> Conv Layer ker=5 -> Normalisation -> ReLU -> Conv Layer ker=3 -> Normalisation -> ReLU
+
+Each block has a skip connection from the block's input to the output. Skip connection consists of a kernel size 1 convolution then batch normalisation. 
+
+505,290 trainable parameters
+
+### Output: 
+Global Average Pooling Layer -> Softmax
+### Optimisation: 
+Adam wtih learning rate: 0.001.
+### Loss:
+Catergorical Cross Entropy
+
+## Data:
+  
+1000 Univariate force time series with 1000 time points each and varying radii. Radii values are spaced by 0.2 um from 0.2 to 1 um and randomly sampled. Radii encoded into a one hot vector.
+
+Force values are z normalised.
 
 
-    
-- Time structured data
-  - https://www.tensorflow.org/tutorials/structured_data/time_series
-  - Time delay neural network 
-  - https://en.wikipedia.org/wiki/Time_delay_neural_network
-  - https://stats.stackexchange.com/questions/137721/neural-network-classification-from-time-series
-  - https://www.danielpovey.com/files/2015_interspeech_multisplice.pdf
-  - http://www.cs.toronto.edu/~fritz/absps/waibelTDNN.pdf
-  - https://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/
-  - https://arxiv.org/pdf/1809.04356.pdf - review 
-  - Equivalence with CNN?
-    - Basically very similar to image data kinda
-  - Maybe start with predicting forces rather than radius
-  - Model is shown snippets and then predicts how much is needed to capture time information
-  - Model is shown snippets and then predicts?
-  - Model the time series then drop into ml 
-
-
-https://www.manning.com/books/deep-learning-with-python
+## Expansion
+Inclusion of more force axis.
+Pretrained network for regression based network

@@ -1,10 +1,12 @@
 import numpy as np
-from process import loadup
+from utilities import loadup
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+from scipy.constants import c
 
-f = loadup("discrete_data","force")
+# Diagnostics for the data e.g. histograms, time series plots and statistical properties.
 
-def plot_time_series(x, y):
+def plot_time_series(x, y, f):
     """
     Plot some of the time series for each radius.
     """
@@ -31,7 +33,7 @@ def plot_time_series(x, y):
     plt.show()
 
 
-def stats_analysis():
+def stats_analysis(f):
     """
     Pull some statistics of the time series data.
     """
@@ -51,7 +53,63 @@ def stats_analysis():
         print("Force Var: {:.3f} pN".format(fzvar))
 
 
-# Histogram diagnosics
+def get_components(x):
+    """
+    Takes array resulting from simulations and returns three arrays corresonding to the xyz components.
+    """
+    xdata = x[:,0]
+    ydata = x[:,1]
+    zdata = x[:,2]
 
-plot_time_series(6,3)
-stats_analysis()
+    return xdata, ydata, zdata
+
+
+def plot_output(data):
+    """ 
+    Function that plots output of the simulation. 
+    """
+
+    xdata, ydata, zdata = get_components(data)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot3D(xdata, ydata, zdata)
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+
+    ax.set_xlim3d(-10e-8, 10e-8)
+    ax.set_ylim3d(-10e-8, 10e-8)
+    ax.set_zlim3d(0, 50e-8)
+
+    plt.show()
+
+
+def hist(x, axis):
+    """
+    Generates a histogram of the data x.
+    """
+
+    xdata, ydata, zdata = get_components(x)
+
+    if axis == "x":
+        counts, bins = np.histogram(xdata, bins=100)
+        plt.hist(xdata, bins = 50)
+        plt.title("x Axis Force Histogram")
+        plt.xlabel("Force (N)")
+
+    if axis == "y":
+        counts, bins = np.histogram(ydata, bins=100)
+        plt.hist(ydata, bins = 50)
+        plt.title("y Axis Force Histogram")
+        plt.xlabel("Force (N)")
+
+    if axis == "z":
+        counts, bins = np.histogram(zdata, bins=100)
+        plt.hist(zdata, bins = 50)
+        plt.title("Axial Force Histogram")
+        plt.xlabel("Force (N)")
+
+    plt.show()
+    return counts, bins

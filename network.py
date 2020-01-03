@@ -1,11 +1,11 @@
 import numpy as np
-from process import loadup
+from utilities import loadup
 import matplotlib.pyplot as plt
 import os
 import time
 
 import tensorflow as tf
-from tensorflow import keras
+import keras
 
 
 def modelmk1():
@@ -32,7 +32,7 @@ class modelmk2():
         Initialise the mk2 model.
 
         Parameters:
-            input_shape (int): Size of the input expected.
+            input_shape (tuple): (ts length, featurs) Size of the input expected.
             n_classes (int): The number of output classes.
             name (str): Name of the model used for storing weights.
         """
@@ -49,21 +49,23 @@ class modelmk2():
         if verbose:
             self.model.summary()
 
+        self.save_weights()
+
     
     def conv_block(self, factor, input):
         """
         A single convolution block. factor is the integer multiple of n_filters for the conv layer.
         """
         conv_x = keras.layers.Conv1D(filters=factor*self.n_filters, kernel_size=8, padding="same")(input)
-        conv_x = keras.layers.normalisation.BatchNormalization()(conv_x)
+        conv_x = keras.layers.normalization.BatchNormalization()(conv_x)
         conv_x = keras.layers.Activation("relu")(conv_x)
 
-        conv_y = keras.layers.Conv1D(filters=factor*self.n_filters, kernel=5, padding="same")(conv_x)
-        conv_y = keras.layers.normalisation.BatchNormalization(conv_y)
+        conv_y = keras.layers.Conv1D(filters=factor*self.n_filters, kernel_size=5, padding="same")(conv_x)
+        conv_y = keras.layers.normalization.BatchNormalization()(conv_y)
         conv_y = keras.layers.Activation("relu")(conv_y)
 
         conv_z = keras.layers.Conv1D(filters=factor*self.n_filters, kernel_size=3, padding="same")(conv_y)
-        conv_z = keras.layers.normalisation.BatchNormalization()(conv_z)
+        conv_z = keras.layers.normalization.BatchNormalization()(conv_z)
 
         return conv_z
 
@@ -73,14 +75,14 @@ class modelmk2():
         Method for building the model. Architecture based off of the paper: 'Deep learning for time series classification: a review'.
         """
         # Build model
-        input_layer = keras.layers.Input(self.input_shape)
+        input_layer = keras.layers.Input(shape=self.input_shape)
 
         # Block 1 
         b1 = self.conv_block(1, input_layer)
 
         # Shortcut
         short_y = keras.layers.Conv1D(filters = self.n_filters, kernel_size=1, padding='same')(input_layer)
-        short_y = keras.layers.normalisation.BatchNormalization()(short_y)
+        short_y = keras.layers.normalization.BatchNormalization()(short_y)
         
         out_b1 = keras.layers.add([short_y, b1])
         out_b1 = keras.layers.Activation("relu")(out_b1)
@@ -91,7 +93,7 @@ class modelmk2():
 
         # Shortcut 
         short_y = keras.layers.Conv1D(filters=2*self.n_filters, kernel_size=1, padding="same")(short_y)
-        short_y = keras.layers.normalisation.BatchNormalization()(short_y)
+        short_y = keras.layers.normalization.BatchNormalization()(short_y)
 
         out_b2 = keras.layers.add([short_y, b2])
         out_b2 = keras.layers.Activation("relu")(out_b2)
@@ -101,21 +103,21 @@ class modelmk2():
         b3 = self.conv_block(2, out_b2)
 
         # Shortcut
-        short_y = keras.layers.normalisation.BatchNormalization()(out_b2)
+        short_y = keras.layers.normalization.BatchNormalization()(out_b2)
 
         out_b3 = keras.layers.add([short_y, b3])
         out_b3 = keras.layers.Activation('relu')(out_b3)
 
         
-        # Output layer.
+        # Output layers
         gap_layer = keras.layers.GlobalAveragePooling1D()(out_b3)
         out_layer = keras.layers.Dense(self.n_classes, activation='softmax')(gap_layer)
 
 
         # Build model
         model = keras.models.Model(inputs=input_layer, outputs=out_layer)
-        adam = keras.optimizers.Adam(learning_rate=0.001)
-        model.compile(loss='catergorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        adam = keras.optimizers.Adam(lr=0.001)
+        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only = True)
 
@@ -124,11 +126,11 @@ class modelmk2():
         return model
 
 
-    def fit(self, x_train, y_train, x_val, y_val, y_true):
+    def fit(self, x_train, y_train, x_val, y_val):
         """
         Trains the model.
         """
-        mini_batch_size = int(x_train.shape[0]/10)
+        mini_batch_size = 16
         n_epoch = 1500
 
         start_time = time.time()
@@ -152,4 +154,3 @@ class modelmk2():
         self.model.save_weights(self.directory)
 
 
-model = modelmk2(1000, 10, "resnet3")
