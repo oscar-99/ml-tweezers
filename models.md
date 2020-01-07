@@ -76,6 +76,7 @@ To fix the overfitting problem
       - Capture some of the away from equilibrium behavior. This may boost the information available to the model.
       - Generalisability. 
 - Run the model on a UCR dataset to verify the architecture is functioning correctly
+- Shuffle the order of the time series.
 
 
 
