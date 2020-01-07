@@ -11,6 +11,11 @@ from network import modelmk2
 from simulation import generate_data, simulate, force_comp
 
 
+generate_data(append=True, simulations=7000)
+f = loadup("discrete_data", "force")
+print(f.shape)
+
+'''
 training_data, training_labels, testing_data, testing_labels = ts_classify_data_prep(0.9, 2, sample_size=3000)
 
 input_shape = training_data.shape[1:] # Time series length
@@ -33,3 +38,4 @@ plt.xlabel("Epochs")
 plt.legend(["Training", "Validation"])
 
 plt.show()
+'''
