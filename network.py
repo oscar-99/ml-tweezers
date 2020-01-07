@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from utilities import loadup
 import matplotlib.pyplot as plt
 import os
@@ -27,7 +28,7 @@ class modelmk2():
     Class for the mk2 model a ResNet time series classification model for a single force axis.
     """
 
-    def __init__(self, input_shape, n_classes, name, verbose=True):
+    def __init__(self, input_shape, n_classes, name, verbose=True, epochs=1000, mini_batch_size=100):
         """
         Initialise the mk2 model.
 
@@ -42,14 +43,15 @@ class modelmk2():
         self.directory = os.path.join("models", self.name + ".h5")
         self.duration = None
 
+        # Hyper parameters
         self.n_filters = 64
+        self.mini_batch_size = mini_batch_size
+        self.n_epoch = epochs
 
         self.model = self.build_model()
          
         if verbose:
             self.model.summary()
-
-        self.save_weights()
 
     
     def conv_block(self, factor, input):
@@ -92,7 +94,7 @@ class modelmk2():
         b2 = self.conv_block(2, out_b1)
 
         # Shortcut 
-        short_y = keras.layers.Conv1D(filters=2*self.n_filters, kernel_size=1, padding="same")(short_y)
+        short_y = keras.layers.Conv1D(filters=2*self.n_filters, kernel_size=1, padding="same")(out_b1)
         short_y = keras.layers.normalization.BatchNormalization()(short_y)
 
         out_b2 = keras.layers.add([short_y, b2])
@@ -118,8 +120,8 @@ class modelmk2():
         model = keras.models.Model(inputs=input_layer, outputs=out_layer)
         adam = keras.optimizers.Adam(lr=0.001)
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-        reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only = True)
+        reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=1e-5)
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
         
@@ -130,21 +132,30 @@ class modelmk2():
         """
         Trains the model.
         """
-        mini_batch_size = 16
-        n_epoch = 1500
-
         start_time = time.time()
         
-        hist = self.model.fit(x_train,y_train, batch_size=mini_batch_size, epochs=n_epoch, validation_data=(x_val,y_val), callbacks=self.callbacks)
+        self.hist = self.model.fit(x_train,y_train, batch_size=self.mini_batch_size, epochs=self.n_epoch, validation_data=(x_val,y_val), callbacks=self.callbacks)
 
         self.duration = time.time() - start_time
+        print(self.duration/60)
+        self.save_logs()
+        self.save_weights()
         
 
-    def predict(self):
+    def evaluate(self, x_val, y_val):
         """
-        Runs prediction given a time series.
+        Runs evaluation given a time series.
         """
-        pass
+        return self.model.evaluate(x_val, y_val, verbose=1)
+
+    
+    def load_weights(self, x_val, y_val):
+        """
+        Load in the weights stored at file.
+        """
+        self.model.load_weights(self.directory)
+        loss, acc = self.model.evaluate(x_val,  y_val)
+        print("Restored model, accuracy: {:5.2f}%".format(100*acc))
 
 
     def save_weights(self):
@@ -152,5 +163,13 @@ class modelmk2():
         Saves the weights in output file
         """   
         self.model.save_weights(self.directory)
+
+    
+    def save_logs(self):
+        """
+        Saves log information to a .csv
+        """
+        hist_df = pd.DataFrame(self.hist.history)
+        hist_df.to_csv(os.path.join('models',self.name + 'history.csv'), index=False)
 
 

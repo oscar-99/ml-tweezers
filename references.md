@@ -8,6 +8,8 @@
 Convolutional Networks: https://lmb.informatik.uni-freiburg.de/Publications/2015/FDB15/image_orientation.pdf
 ### Classification
 - Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
+- InceptionTime: Finding AlexNet for Time Series
+Classification (2019): https://arxiv.org/pdf/1909.04939.pdf
 - Time Series Classification from Scratch with Deep
 Neural Networks: A Strong Baseline (2016) https://arxiv.org/pdf/1611.06455.pdf
 - A time delay neural network architecture for efficient modeling of long

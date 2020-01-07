@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import keras
 
 
-def ts_classify_data_prep(split, axis):
+
+
+def ts_classify_data_prep(split, axis, sample_size=1000):
     """
     Function for prepping univariate force data in a time series format to train a classifier. Loads up the force and radius data, performs z normalisation and converts to one hot labels and generate the training/testing split
 
@@ -14,18 +16,17 @@ def ts_classify_data_prep(split, axis):
     """
     # Parameters of data
     ts_len = 1000 
-    sample_size = 1000 # Number of time series to be trained on
 
     # Load up data
     f = loadup("discrete_data", "force")
 
     # Clean up and format radii and forces
-    radii = f[:,3]
+    radii = f[:sample_size*ts_len,3]
     radii = np.reshape(radii, (sample_size, ts_len))
     radii = radii[:,1]*1e7/2 - 1 # Change of units to be integers from 0-4
     radii = keras.utils.to_categorical(radii) # Convert to a one hot vector
     
-    faxis = f[:,axis]
+    faxis = f[:sample_size*ts_len,axis]
     faxis = np.reshape(faxis, (sample_size, ts_len))
 
     # 'z' Normalise forces 
@@ -33,11 +34,16 @@ def ts_classify_data_prep(split, axis):
     fstd = np.std(faxis, axis=1).reshape(sample_size, 1)
     faxis = (faxis - fmean)/fstd
 
-    # Split into training and testing sets
+
+    # Split into training and testing sets and reshape data to 3d form expected by tensorflow (n, 1000, 1) i.e. single dimension multivariate time series.
     split_index = int(np.ceil(split*sample_size))
     
-    training_data = faxis[:split_index,:]
-    testing_data = faxis[split_index:,:]
+    training_data = faxis[:split_index, :]
+    training_data = training_data.reshape(training_data.shape[0], training_data.shape[1], 1)
+
+    testing_data = faxis[split_index:, :]
+    testing_data = testing_data.reshape(testing_data.shape[0], testing_data.shape[1], 1)
+    
 
     training_labels = radii[:split_index, :]
     testing_labels = radii[split_index:, :]

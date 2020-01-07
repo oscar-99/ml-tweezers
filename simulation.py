@@ -101,9 +101,10 @@ def store(filename, x):
     np.save(save_location, x)
 
 
-def generate_data():
+def generate_data(append=False, simulations=1000):
     """
     Function to run the simulation code and save results using .h5 file.
+    If append is True will append to the given file rather than write over.
     """
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
@@ -111,11 +112,10 @@ def generate_data():
     SAVE_LOC = "data/discrete_data.h5"
 
     # Initialise datasets
-    with h5py.File(SAVE_LOC, "w") as file:    
-        file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
-        file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
-
-    simulations = 1000
+    if append == False:
+        with h5py.File(SAVE_LOC, "w") as file:    
+            file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
+            file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
 
     for i in range(simulations):
         # Run a simulation for radius
@@ -143,5 +143,3 @@ def generate_data():
             file["force"][-fy.shape[0]:] = fy
 
     print("All Simulations Complete")
-
-generate_data()

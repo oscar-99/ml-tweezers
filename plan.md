@@ -62,12 +62,12 @@
   - <s>Generate some data</s>
 - <s>Force histogram script</s>
 - <s>Store simulated data so I dont have to keep simulating </s>
-- Fourier transform?
 - Build some test models.
-- Generate large dataset on getafix.
-- Research time structured architecture.
-- Generate some time series plots of forces
-- Generate some histograms of forces
-- Run some time series analysis
-- Generate some data for changing 
+- <s> Research time structured architecture. </s>
+  - Read inception time paper
+- <s> Generate some time series plots of forces </s>
+- <s> Generate some histograms of forces </s>
+- <s> Run some time series analysis </s>
+- Keep messing with getting the overfitting fixed
+  - See models.md
 
