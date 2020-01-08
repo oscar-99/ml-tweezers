@@ -18,8 +18,11 @@ temporal contexts: https://www.danielpovey.com/files/2015_interspeech_multisplic
 - Deep Residual Learning for Image Recognition: https://arxiv.org/pdf/1512.03385.pdf
 - Deep Learning for Time-Series Analysis: https://arxiv.org/pdf/1701.01887.pdf
 - Transfer learning for time series classification: https://arxiv.org/pdf/1811.01533.pdf
+- CNN Approaches for Time Series Classification (2018) https://www.intechopen.com/books/time-series-analysis-data-methods-and-applications/cnn-approaches-for-time-series-classification
+  
 ## Misc
 - UCR Time Series Classification: https://arxiv.org/pdf/1809.04356.pdf
+
 ## Tutorials
 - https://medium.com/@14prakash/understanding-and-implementing-architectures-of-resnet-and-resnext-for-state-of-the-art-image-cf51669e1624
 - http://deeplearning.stanford.edu/tutorial/supervised/ConvolutionalNeuralNetwork/
