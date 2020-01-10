@@ -23,12 +23,12 @@ def modelmk1():
     return model
 
 
-class modelmk2():
+class ResNetTS():
     """ 
     Class for the mk2 model a ResNet time series classification model for a single force axis.
     """
 
-    def __init__(self, input_shape, n_classes, name, verbose=True, epochs=1000, mini_batch_size=100):
+    def __init__(self, input_shape, n_classes, name, verbose=True, mini_batch_size=100):
         """
         Initialise the mk2 model.
 
@@ -46,7 +46,6 @@ class modelmk2():
         # Hyper parameters
         self.n_filters = 64
         self.mini_batch_size = mini_batch_size
-        self.n_epoch = epochs
 
         self.model = self.build_model()
          
@@ -118,9 +117,9 @@ class modelmk2():
 
         # Build model
         model = keras.models.Model(inputs=input_layer, outputs=out_layer)
-        adam = keras.optimizers.Adam(lr=0.001)
+        adam = keras.optimizers.Adam()
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-        reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=1e-5)
+        reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
@@ -128,10 +127,11 @@ class modelmk2():
         return model
 
 
-    def fit(self, x_train, y_train, x_val, y_val):
+    def fit(self, x_train, y_train, x_val, y_val, epochs):
         """
         Trains the model.
         """
+        self.n_epoch = epochs
         start_time = time.time()
         
         self.hist = self.model.fit(x_train,y_train, batch_size=self.mini_batch_size, epochs=self.n_epoch, validation_data=(x_val,y_val), callbacks=self.callbacks)
@@ -139,7 +139,7 @@ class modelmk2():
         self.duration = time.time() - start_time
         print(self.duration/60)
         self.save_logs()
-        self.save_weights()
+        
         
 
     def evaluate(self, x_val, y_val):
@@ -149,13 +149,16 @@ class modelmk2():
         return self.model.evaluate(x_val, y_val, verbose=1)
 
     
-    def load_weights(self, x_val, y_val):
+    def load_weights(self, x_val, y_val, location=None):
         """
         Load in the weights stored at file.
         """
-        self.model.load_weights(self.directory)
+        if location == None:
+            self.model.load_weights(self.directory)
+        else:
+            self.model.load_weights(location)
         loss, acc = self.model.evaluate(x_val,  y_val)
-        print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+        print("Restored model, accuracy: {:5.2f}%, loss: {:5.2f}".format(100*acc, loss))
 
 
     def save_weights(self):

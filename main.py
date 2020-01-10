@@ -5,21 +5,22 @@ import matplotlib.pyplot as plt
 from keras.models import load_model
 
 import keras
+import tensorflow as tf 
 
 from utilities import loadup, store, ts_classify_data_prep
-from network import modelmk2
+from network import ResNetTS
 from simulation import generate_data, simulate, force_comp
 
-'''
-training_data, training_labels, testing_data, testing_labels = ts_classify_data_prep(0.9, 2, sample_size=3000)
+
+training_data, training_labels, testing_data, testing_labels = ts_classify_data_prep(1, [0, 2], 'discrete_data', sample_size=10000) 
 
 input_shape = training_data.shape[1:] # Time series length
+model = ResNetTS(input_shape, 5, "resnet3")
+model.load_weights(training_data, training_labels)
+# model.fit(training_data, training_labels, testing_data, testing_labels, 1000)
 
-model = modelmk2(input_shape, 5, "resnet3-fixed", epochs=30)
-model.fit(training_data, training_labels, testing_data, testing_labels)
-'''
 
-hist_data = pd.read_csv('models/resnet3-fixedhistory.csv')
+hist_data = pd.read_csv('models/resnet3history.csv')
 plt.subplot(2, 1, 1)
 plt.title("Loss Statistics")
 plt.plot(hist_data["val_loss"])
@@ -34,4 +35,3 @@ plt.xlabel("Epochs")
 plt.legend(["Validation", "Training"] )
 
 plt.show()
-'''

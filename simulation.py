@@ -109,7 +109,7 @@ def generate_data(append=False, simulations=1000):
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
-    SAVE_LOC = "data/discrete_data.h5"
+    SAVE_LOC = "data/test_data.h5"
 
     # Initialise datasets
     if append == False:

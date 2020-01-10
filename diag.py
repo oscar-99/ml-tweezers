@@ -4,7 +4,32 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from scipy.constants import c
 
-# Diagnostics for the data e.g. histograms, time series plots and statistical properties.
+# Diagnostics for the data e.g. histograms, time series plots and statistical properties.]\
+
+
+def fourier(axis, series):
+    """
+    Generate the fourier transform for the given force axis.
+    
+    Parameters:
+        axis (int): 0 - x axis, 1 - y axis, 2 - z axis.
+    """
+    sample_size = 10000
+    ts_len = 1000
+    f = loadup('discrete_data', "force")
+    faxis = f[:sample_size*ts_len, axis]
+    print(faxis)
+    faxis = np.reshape(faxis, (sample_size, ts_len))
+    print(faxis)
+    faxis = faxis[series, :]
+
+    fourier = np.fft.fft(faxis)
+    plt.plot(fourier)
+    plt.show()
+
+fourier(2, 0)
+
+
 
 def plot_time_series(x, y, f):
     """

@@ -59,6 +59,7 @@ To fix the overfitting problem
     - Training time up to ~3 min/epoch
     - Validation accuracy still volatile but still between ~0.5-0.75, below 20 epoch training accuracy.
     - More time training needed?
+  - Example increased to 10000
 - Hyper parameters
   - Dropped learning rate to 1e-5 which didn't seem to make much of a difference.
 - Add in some dropout/other types of regularisation.
@@ -67,6 +68,7 @@ To fix the overfitting problem
   - Increase training time?
   - Greater Complexity, dimensionality increased.
   - More information available, works to fix the overtraining problem.
+  - Addding extra force axis SIGNIFICANTLY improved results
 - Pre process method
   - Best type of normalisation?
     -  Do I lose information with z normalisation?

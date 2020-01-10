@@ -70,4 +70,9 @@
 - <s> Run some time series analysis </s>
 - Keep messing with getting the overfitting fixed
   - See models.md
+- Add in multi time series capacity 
+- Deeper network.
+- Build a larger classification model.
+- Regression top.
+
 
