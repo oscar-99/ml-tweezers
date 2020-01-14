@@ -120,7 +120,7 @@ class ResNetTS():
         """
         Build a classifier output layer.
         """
-        out_layer = keras.layers.Dense(n_classes, activation='softmax')(self.gap_layer)
+        out_layer = keras.layers.Dense(n_classes, name='classify', activation='softmax')(self.gap_layer)
 
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
@@ -140,7 +140,7 @@ class ResNetTS():
         """
         Build a regression output layer.
         """
-        out_layer = keras.layers.Dense(1)(self.gap_layer)
+        out_layer = keras.layers.Dense(1, name='reg')(self.gap_layer)
 
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
@@ -150,7 +150,7 @@ class ResNetTS():
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
         adam = keras.optimizers.Adam()
-        self.model.compile(loss='mse', optimizer=adam, metrics=['mse', 'mae', 'mape'])
+        self.model.compile(loss='mse', optimizer=adam, metrics=['mae', 'mape'])
 
         if self.verbose:
             self.model.summary()
@@ -175,15 +175,19 @@ class ResNetTS():
         Runs evaluation for classifier given a time series.
         """
         loss, acc = self.model.evaluate(x_val,  y_val)
-        print("Restored model, accuracy: {:5.2f}%, loss: {:5.2f}".format(100*acc, loss))
+        print("Model accuracy: {:5.2f}%, loss: {:5.2f}".format(100*acc, loss))
 
 
     def evaluate_regression(self, x_val, y_val):
         """
         Runs evaluation for regression.
         """
-        ev = self.model.evaluate(self, x_val, y_val):
-        
+        ev = self.model.evaluate(x_val, y_val)
+        message = "Model Stats:-- "
+        for i, met in enumerate(self.model.metrics_names):
+            message = message + "{}: {:.2f}, ".format(met, ev[i])
+
+        print(message)
 
     
     def load_weights(self, location=None):

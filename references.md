@@ -25,7 +25,7 @@ temporal contexts: https://www.danielpovey.com/files/2015_interspeech_multisplic
   
 ## Misc
 - UCR Time Series Classification: https://arxiv.org/pdf/1809.04356.pdf
-- ResNet: https://arxiv.org/pdf/1512.03385.pdf
+- ResNet paper: https://arxiv.org/pdf/1512.03385.pdf
 
 ## Tutorials
 - https://medium.com/@14prakash/understanding-and-implementing-architectures-of-resnet-and-resnext-for-state-of-the-art-image-cf51669e1624
