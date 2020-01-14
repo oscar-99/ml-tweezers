@@ -28,9 +28,10 @@ It was decided from a review of time series classification literature (in partic
 
 
 ### Performance
-The network was trained on a GPU which significantly sped up the train
+The network was trained on a GPU which significantly sped up the training
 
-![](/Figures/Diagnostics-1000epoch.png)
+![1000 Epoch Training Diagnostics](/Figures/Diagnostics-1000epoch.png)
+
 
 # Summary 
 - Got simulation working to generate some data using trained 5 degree of freedom model 
