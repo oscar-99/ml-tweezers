@@ -9,16 +9,27 @@ import tensorflow as tf
 
 from utilities import loadup, store, ts_classify_data_prep
 from network import ResNetTS
-from simulation import generate_data, simulate, force_comp
+from simulation import generate_data, generate_cont_data, simulate, force_comp
+
+# Parameters
+train_test_ratio = 0.9
+axes = [0, 2] # x and z axis
+sample_size = 4000
+out_classes = 10
+
+'''
+# Process data 
+training_data, training_labels, testing_data, testing_labels = ts_classify_data_prep(train_test_ratio, axes, 'class10_data', sample_size) 
 
 
-training_data, training_labels, testing_data, testing_labels = ts_classify_data_prep(1, [0, 2], 'discrete_data', sample_size=10000) 
-
+# Build model
 input_shape = training_data.shape[1:] # Time series length
-model = ResNetTS(input_shape, 5, "resnet3")
-model.load_weights(training_data, training_labels)
-# model.fit(training_data, training_labels, testing_data, testing_labels, 1000)
-
+model = ResNetTS(input_shape, "resnet3-10classes")
+model.build_classify_output(10)
+model.load_weights(location='models/resnet3-10classes.h5')
+model.evaluate_classify(testing_data, testing_labels)
+model.fit(training_data, training_labels, testing_data, testing_labels, 20)
+'''
 
 hist_data = pd.read_csv('models/resnet3history.csv')
 plt.subplot(2, 1, 1)

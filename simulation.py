@@ -101,7 +101,7 @@ def store(filename, x):
     np.save(save_location, x)
 
 
-def generate_data(append=False, simulations=1000):
+def generate_data(file, simulations, append=False):
     """
     Function to run the simulation code and save results using .h5 file.
     If append is True will append to the given file rather than write over.
@@ -109,7 +109,7 @@ def generate_data(append=False, simulations=1000):
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
-    SAVE_LOC = "data/test_data.h5"
+    SAVE_LOC = "data/" + file + ".h5"
 
     # Initialise datasets
     if append == False:
@@ -119,7 +119,7 @@ def generate_data(append=False, simulations=1000):
 
     for i in range(simulations):
         # Run a simulation for radius
-        radius = 2*np.random.randint(1,6)*1e-7
+        radius = np.random.randint(1,11)*1e-7
         print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
         x, fx = simulate(radius, n_part, nn)
 
@@ -143,3 +143,48 @@ def generate_data(append=False, simulations=1000):
             file["force"][-fy.shape[0]:] = fy
 
     print("All Simulations Complete")
+
+
+def generate_cont_data(file, simulations, append=False):
+    """
+    Function to run the simulation code and save results using .h5 file. This function will generate continuous data ranging from 0.1 to 1 microns.
+    If append is True will append to the given file rather than write over.
+    """
+    MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
+    nn = load_model(MODEL_FILE_5DOF)
+    
+    SAVE_LOC = "data/" + file + ".h5"
+
+    # Initialise datasets
+    if append == False:
+        with h5py.File(SAVE_LOC, "w") as file:    
+            file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
+            file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
+
+    for i in range(simulations):
+        # Run a simulation for radius
+        radius = np.random.uniform(1,10)*1e-7
+        print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
+        x, fx = simulate(radius, n_part, nn)
+
+        # Transform data into a n x 5 matrix
+        x = np.array(x)
+        x = x[:,0,:]
+        x = x[101:, :]
+        y = np.c_[x, radius*np.ones((x.shape[0],1)), n_part*np.ones((x.shape[0], 1))]
+
+        fx = np.array(fx)
+        fx = fx[:,0,:]
+        fx = fx[101:,:]
+        fy = np.c_[fx, radius*np.ones((fx.shape[0],1)), n_part*np.ones((fx.shape[0], 1))]
+
+        with h5py.File(SAVE_LOC, "a") as file:
+            # Store results
+            file["pos"].resize((file["pos"].shape[0] + y.shape[0], 5))
+            file["pos"][-y.shape[0]:] = y
+
+            file["force"].resize((file["force"].shape[0] + fy.shape[0], 5))
+            file["force"][-fy.shape[0]:] = fy
+
+    print("All Simulations Complete")
+

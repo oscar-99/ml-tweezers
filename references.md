@@ -1,11 +1,13 @@
 # Machine Learning Models
 ## General Neural Networks
+- Optimization for deep learning: theory and algorithms: https://arxiv.org/pdf/1912.08957.pdf
 ## Time Structure
 ### Regression
 - A Comprehensive Analysis of Deep Regression: https://arxiv.org/pdf/1803.08450.pdf
 - 3D Pose Regression using Convolutional Neural Networks: https://arxiv.org/pdf/1708.05628.pdf
 - Image Orientation Estimation with
 Convolutional Networks: https://lmb.informatik.uni-freiburg.de/Publications/2015/FDB15/image_orientation.pdf
+
 ### Classification
 - Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
 - InceptionTime: Finding AlexNet for Time Series
@@ -36,7 +38,6 @@ temporal contexts: https://www.danielpovey.com/files/2015_interspeech_multisplic
 # Physics
 ## Simulation
 - Simulation of a Brownian particle in an optical trap: https://aapt-scitation-org.ezproxy.library.uq.edu.au/doi/full/10.1119/1.4772632
-## 
 ## General 
 - Measurement of refractive index of single microparticles: https://arxiv.org/pdf/physics/0610087.pdf
 - https://teaching.smp.uq.edu.au/fiveminutephysics/index.html#course=phys2055&lecture=Tag

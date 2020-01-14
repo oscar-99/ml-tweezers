@@ -79,6 +79,7 @@ To fix the overfitting problem
       - Generalisability. 
 - Run the model on a UCR dataset to verify the architecture is functioning correctly
 - Shuffle the order of the time series.
+- Add longer time series to capture more long term movements
 
 
 

@@ -25,21 +25,23 @@ def modelmk1():
 
 class ResNetTS():
     """ 
-    Class for the mk2 model a ResNet time series classification model for a single force axis.
+    Class for a ResNet time series classification and regression model for multiple force axes. Architecture based off of the paper: 'Deep learning for time series classification: a review'.
     """
-
-    def __init__(self, input_shape, n_classes, name, verbose=True, mini_batch_size=100):
+    def __init__(self, input_shape, name, verbose=True, mini_batch_size=16):
         """
-        Initialise the mk2 model.
+        Initialise the model. Body of the model is invariant to the time series length and the output layers and is initalised.
+                |                    Body                 |
+        | Input | ConvBlock | ConvBlock | ConvBlock | GAP | Output
 
         Parameters:
             input_shape (tuple): (ts length, featurs) Size of the input expected.
-            n_classes (int): The number of output classes.
             name (str): Name of the model used for storing weights.
         """
-        self.input_shape = input_shape
-        self.n_classes = n_classes
         self.name = name
+        self.verbose = verbose
+
+        self.input_shape = input_shape
+        
         self.directory = os.path.join("models", self.name + ".h5")
         self.duration = None
 
@@ -47,10 +49,10 @@ class ResNetTS():
         self.n_filters = 64
         self.mini_batch_size = mini_batch_size
 
-        self.model = self.build_model()
+        # Build the model body
+        self.build_model_body()
          
-        if verbose:
-            self.model.summary()
+        
 
     
     def conv_block(self, factor, input):
@@ -71,18 +73,18 @@ class ResNetTS():
         return conv_z
 
 
-    def build_model(self):
+    def build_model_body(self):
         """
-        Method for building the model. Architecture based off of the paper: 'Deep learning for time series classification: a review'.
+        Method for building the body of the model. 
         """
         # Build model
-        input_layer = keras.layers.Input(shape=self.input_shape)
+        self.input = keras.layers.Input(shape=self.input_shape)
 
         # Block 1 
-        b1 = self.conv_block(1, input_layer)
+        b1 = self.conv_block(1, self.input)
 
         # Shortcut
-        short_y = keras.layers.Conv1D(filters = self.n_filters, kernel_size=1, padding='same')(input_layer)
+        short_y = keras.layers.Conv1D(filters = self.n_filters, kernel_size=1, padding='same')(self.input)
         short_y = keras.layers.normalization.BatchNormalization()(short_y)
         
         out_b1 = keras.layers.add([short_y, b1])
@@ -111,21 +113,48 @@ class ResNetTS():
 
         
         # Output layers
-        gap_layer = keras.layers.GlobalAveragePooling1D()(out_b3)
-        out_layer = keras.layers.Dense(self.n_classes, activation='softmax')(gap_layer)
+        self.gap_layer = keras.layers.GlobalAveragePooling1D()(out_b3)
 
+
+    def build_classify_output(self, n_classes):
+        """
+        Build a classifier output layer.
+        """
+        out_layer = keras.layers.Dense(n_classes, activation='softmax')(self.gap_layer)
 
         # Build model
-        model = keras.models.Model(inputs=input_layer, outputs=out_layer)
-        adam = keras.optimizers.Adam()
-        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
+
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
-        
-        return model
+        adam = keras.optimizers.Adam()
+        self.model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
+        if self.verbose:
+            self.model.summary()
+
+    
+    def build_regression_output(self):
+        """
+        Build a regression output layer.
+        """
+        out_layer = keras.layers.Dense(1)(self.gap_layer)
+
+        # Build model
+        self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
+
+        reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only=True)
+
+        self.callbacks = [reduce_learning_rate, model_checkpoint]
+        adam = keras.optimizers.Adam()
+        self.model.compile(loss='mse', optimizer=adam, metrics=['mse', 'mae', 'mape'])
+
+        if self.verbose:
+            self.model.summary()
+        
 
     def fit(self, x_train, y_train, x_val, y_val, epochs):
         """
@@ -138,28 +167,35 @@ class ResNetTS():
 
         self.duration = time.time() - start_time
         print(self.duration/60)
-        self.save_logs()
-        
+        self.save_logs()     
         
 
-    def evaluate(self, x_val, y_val):
+    def evaluate_classify(self, x_val, y_val):
         """
-        Runs evaluation given a time series.
+        Runs evaluation for classifier given a time series.
         """
-        return self.model.evaluate(x_val, y_val, verbose=1)
-
-    
-    def load_weights(self, x_val, y_val, location=None):
-        """
-        Load in the weights stored at file.
-        """
-        if location == None:
-            self.model.load_weights(self.directory)
-        else:
-            self.model.load_weights(location)
         loss, acc = self.model.evaluate(x_val,  y_val)
         print("Restored model, accuracy: {:5.2f}%, loss: {:5.2f}".format(100*acc, loss))
 
+
+    def evaluate_regression(self, x_val, y_val):
+        """
+        Runs evaluation for regression.
+        """
+        ev = self.model.evaluate(self, x_val, y_val):
+        
+
+    
+    def load_weights(self, location=None):
+        """
+        Load in the weights stored at file.
+        """
+        # by_name will load in weights only in the final layer
+        if location == None:
+            self.model.load_weights(self.directory, by_name=True)
+        else:
+            self.model.load_weights(location, by_name=True)
+        
 
     def save_weights(self):
         """
@@ -168,6 +204,21 @@ class ResNetTS():
         self.model.save_weights(self.directory)
 
     
+    def mod_output_classes(self, n_classes):
+        """
+        Modifies the output layer to have n_classes output classes, discarding old final layer weights. 
+        """
+        '''
+        # Connect new output layer second to last 
+        predictions = keras.layers.Dense(n_classes, activation='softmax')(self.model.layers[-2].output)
+        self.model = keras.Model(input=self.input, outputs=predictions)
+        self.model_compile()
+        self.model.summary()
+
+        # Implementation and information from https://stackoverflow.com/questions/41668813/how-to-add-and-remove-new-layers-in-keras-after-loading-weights
+        '''
+
+
     def save_logs(self):
         """
         Saves log information to a .csv

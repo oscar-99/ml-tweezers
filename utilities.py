@@ -5,9 +5,9 @@ import keras
 
 
 
-def ts_classify_data_prep(split, axes, data, sample_size=1000):
+def ts_classify_data_prep(split, axes, data, sample_size):
     """
-    Function for prepping univariate force data in a time series format to train a classifier. Loads up the force and radius data, performs z normalisation and converts to one hot labels and generate the training/testing split
+    Function for prepping univariate force data in a time series format to train a classifier. Loads up the force and radius data, performs z normalisation and converts to one hot labels and generate the training/testing split.
 
     Parameters:
         split (float): The proportion of train vs. test.
@@ -23,7 +23,8 @@ def ts_classify_data_prep(split, axes, data, sample_size=1000):
     # Clean up and format radii and forces
     radii = f[:sample_size*ts_len,3]
     radii = np.reshape(radii, (sample_size, ts_len))
-    radii = radii[:,1]*1e7/2 - 1 # Change of units to be integers from 0-4
+    radii = radii[:,1]*1e7 - 1 # Change of units to be integers from 0-4
+    print(radii)
     radii = keras.utils.to_categorical(radii) # Convert to a one hot vector
     
     forces = []
@@ -52,35 +53,50 @@ def ts_classify_data_prep(split, axes, data, sample_size=1000):
     return training_data, training_labels, testing_data, testing_labels
 
 
-def data_clean():
+def ts_regression_data_prep(split, axes, data, sample_size):
     """
-    Function for importing and cleaning the data.
+    Function for prepping univariate force data in a time series format to train a regression. Loads up the force and radius data, performs z normalisation and generate the training/testing split
+
+    Parameters:
+        split (float): The proportion of train vs. test.
+        axis (list[int]): 0 - x axis, 1 - y axis, 2 - z axis.
     """
-    features = 6
+    # Parameters of data
+    ts_len = 1000 
 
-    # Load forces and positions and shuffle data
-    fx = loadup("data", "force")
-    fx = fx[:, :3] *1e12 # pN
+    # Load up data
+    f = loadup(data, "force")
 
-    x = loadup("data", "pos")
-    x = x[:, :4]*1e6 # Microns um
 
-    data = np.c_[fx, x]
-    np.random.shuffle(data)
+    # Clean up and format radii and forces
+    radii = f[:sample_size*ts_len,3]
+    radii = np.reshape(radii, (sample_size, ts_len))
+    radii = radii[:,1]*1e6 # Change of units to microns
+    
+    forces = []
 
-    # Split into training and testing set.
-    data_points = data.shape[0]
-    training_split = int(np.ceil(0.9*data_points))
+    # Process the force axes individually then stack them.
+    for axis in axes:
+        faxis = f[:sample_size*ts_len, axis]
+        faxis = np.reshape(faxis, (sample_size, ts_len))
 
-    # Training data
-    training_data = data[:training_split, :features]
-    training_targets = data[:training_split, features:]
+        # 'z' Normalise forces 
+        fmean = np.mean(faxis, axis=1).reshape(sample_size, 1)
+        fstd = np.std(faxis, axis=1).reshape(sample_size, 1)
+        faxis = (faxis - fmean)/fstd
+        forces.append(faxis)
 
-    # Testing data
-    testing_data = data[training_split:, :features]
-    testing_targets = data[training_split:, features:]
+    faxis = np.stack(forces, axis=2)
 
-    return training_data, training_targets, testing_data, testing_targets
+    split_index = int(np.ceil(split*sample_size))
+    
+    training_data = faxis[:split_index, :, :]
+    testing_data = faxis[split_index:, :, :]
+
+    training_labels = radii[:split_index, :]
+    testing_labels = radii[split_index:, :]
+
+    return training_data, training_labels, testing_data, testing_labels
 
 
 def store(filename, x):
