@@ -53,8 +53,6 @@ class ResNetTS():
         self.build_model_body()
          
         
-
-    
     def conv_block(self, factor, input):
         """
         A single convolution block. factor is the integer multiple of n_filters for the conv layer.
@@ -166,7 +164,7 @@ class ResNetTS():
         self.hist = self.model.fit(x_train,y_train, batch_size=self.mini_batch_size, epochs=self.n_epoch, validation_data=(x_val,y_val), callbacks=self.callbacks)
 
         self.duration = time.time() - start_time
-        print(self.duration/60)
+        print("Model Fit Complete. {} epochs completed in {:.2f}".format(self.n_epoch, self.duration/60))
         self.save_logs()     
         
 
@@ -178,18 +176,25 @@ class ResNetTS():
         print("Model accuracy: {:5.2f}%, loss: {:5.2f}".format(100*acc, loss))
 
 
-    def evaluate_regression(self, x_val, y_val):
+    def evaluate_regression(self, testing_data, testing_labels):
         """
         Runs evaluation for regression.
         """
-        ev = self.model.evaluate(x_val, y_val)
+        ev = self.model.evaluate(testing_data, testing_labels)
         message = "Model Stats:-- "
         for i, met in enumerate(self.model.metrics_names):
             message = message + "{}: {:.2f}, ".format(met, ev[i])
 
         print(message)
 
+
+    def predict(self, testing_data):
+        """
+        Run prediction for a model.
+        """
+        return self.model.predict(testing_data)
     
+
     def load_weights(self, location=None):
         """
         Load in the weights stored at file.
@@ -207,27 +212,20 @@ class ResNetTS():
         """   
         self.model.save_weights(self.directory)
 
-    
-    def mod_output_classes(self, n_classes):
-        """
-        Modifies the output layer to have n_classes output classes, discarding old final layer weights. 
-        """
-        '''
-        # Connect new output layer second to last 
-        predictions = keras.layers.Dense(n_classes, activation='softmax')(self.model.layers[-2].output)
-        self.model = keras.Model(input=self.input, outputs=predictions)
-        self.model_compile()
-        self.model.summary()
-
-        # Implementation and information from https://stackoverflow.com/questions/41668813/how-to-add-and-remove-new-layers-in-keras-after-loading-weights
-        '''
-
 
     def save_logs(self):
         """
         Saves log information to a .csv
         """
-        hist_df = pd.DataFrame(self.hist.history)
-        hist_df.to_csv(os.path.join('models',self.name + 'history.csv'), index=False)
+        history_file = os.path.join('models', self.name + 'history.csv')
+        try:
+            hist_df = pd.read_csv(history_file)
+            hist_df = hist_df.append(pd.DataFrame(self.hist.history))
+
+        except FileNotFoundError:
+            hist_df = pd.DataFrame(self.hist.history)
+
+
+        hist_df.to_csv(history_file, index=False)
 
 

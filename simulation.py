@@ -4,6 +4,7 @@ from keras.models import load_model
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from scipy.constants import c
+from utilities import loadup
 
 # Runs simulation using the 5 dof neural network
 
@@ -35,156 +36,234 @@ v0 = np.zeros((1,3))
 f0 = np.zeros((1,3))
 
 
-# Simulation parameters
-dt = 1e-4
-tfin = .11 # Generate 100 more points than needed so first 100 can be discarded.
-
-
-def simulate(radius, n, net):
+def simulate(r, n, dt, t, net):
     """
     Simulates motion of a particle given a neural network.
     
-    Inputs: position, radius of particle, refractive index and a network. All distances in units of metres.
+    Parameters:
+    -----------
+    rs : float
+        Radius of particle in metres.
+    n : float 
+        Refractive index.
+    dt : float
+        Time step.
+    t : float
+        Total time to run simulation and a network. 
 
-    Outputs: Tuple of position, velocity and forces.
+    Returns
+    -------
+        Tuple of position and forces.
     """
 
     x = [x0]
     fx = [f0]
-    nsteps = int(np.ceil(tfin/dt)) 
+    nsteps = int(np.ceil(t/dt)) 
+    completion_stages = [0.25, 0.50, 0.75, 1]
 
     for k in range(nsteps):
         x1 = x[k]
 
         # Compute deterministic forces.
-        f = force_comp(x1, radius, n, net)
+        f = force_comp(x1, r, n, net)
         dx = f*dt/gamma
 
         # Brownian motion term
         dx += np.sqrt(2*kb*temperature*dt/gamma)*np.random.normal(0, 1, (1,3))
         x1 = np.add(x1, dx)
 
-        # Store position, velocity and forces
+        # Store position forces
         x.append(x1)
-        # v.append(dx/dt)
         fx.append(f)
 
-        if (k + 1) % 1000 == 0:
-            print("{}/{} points computed".format((k+1), nsteps))
+        completion = ((k+1)/nsteps)
+        
+        if completion >= completion_stages[0]:
+            completion_stages.pop(0)
+            print("Simulation {:.2%} complete".format(completion))
 
     print("Simulation Complete")
+    x = np.array(x)
+    fx = np.array(fx)
+
     return x, fx
 
 
-def force_comp(x, radius, n, net):
+def force_comp(x, r, n, net):
     """
     Computes deterministic forces on a particle given a neural network.
 
-    Inputs: Position, radius of particle, refractive index and a network. All distances in units of metres.
+    Parameters:
+    -----------
+    x : array
+        Array of positions in metres.
+    r : float
+        Radius of particle in metres.
+    n : float 
+        Refractive index. 
+    net : keras model
+        A 5 dof keras model
 
     Outputs: Deterministic Forces [N].
     """
     # Neural network takes x, y, z, radius, refractive index, in units of microns
-    input = np.array([np.append(x[0]*1e6, [radius*1e6, n])])
+    input = np.array([np.append(x[0]*1e6, [r*1e6, n])])
 
     # Outputs in units (radius_particle_mu)^2*(index_particle-1.33)*Q/index_medium so perform unit conversion
-    f = net.predict(input)*((radius*1e6)**2)*(n-1.33)*power/c
+    f = net.predict(input)*((r*1e6)**2)*(n-1.33)*power/c
     
     return f
 
 
-def store(filename, x):
-    """
-    Store simulation results. Takes a filename and an array to be stored.
-    """
-    save_location = "data/{}.npy".format(filename)
-    np.save(save_location, x)
-
-
-def generate_data(file, simulations, append=False):
+def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, classes, append=False, only_forces=True):
     """
     Function to run the simulation code and save results using .h5 file.
     If append is True will append to the given file rather than write over.
+
+    Parameters:
+    ----------
+    file : str
+        File name where generated data will be saved.
+    t : float
+        Time to run each simulation for.
+    simulations : int
+        Number of times to run the simulation.
+    sampling_rate : int
+        The rate at which points are to be sampled from the simulated data. e.g with sampling rate of 10, 1 in 10 points will be saved.
+    radii_range : (float, float)
+        Tuple of the range of radii in microns. 
+    n_range : (float, float)
+        Tuple of the range of the refractive index values.
+    classes : int
+        If classes == 0 use a continuous distribution otherwise generate classes number of discrete values.
+    append : bool, optional
+        If true append the generated data to the file. 
+    only_forces : bool, optional
+        If true will only store force values.
     """
+    # Simulation parameters
+    dt = 1e-4 # Simulation time step
+    buffer = dt*100 # Generate 100 more points than needed so first 100 can be discarded.
+    t += buffer
+
+    print((t-buffer)/(dt*sampling_rate) )
+    t_length = int((t-buffer)/(dt*sampling_rate) ) # Number of points
+    print('time series length: ', t_length)
+
+
     MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
     SAVE_LOC = "data/" + file + ".h5"
 
+
     # Initialise datasets
     if append == False:
         with h5py.File(SAVE_LOC, "w") as file:    
-            file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
-            file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
+            if not only_forces:
+                file.create_dataset("pos", shape=(0,t_length,3), maxshape=(None, t_length, 3))
+
+            file.create_dataset("force", shape=(0,t_length,3),  maxshape=(None, t_length, 3))
+            file.create_dataset("radii", shape=(0,1), maxshape=(None,1))
+            file.create_dataset("n", shape=(0,1), maxshape=(None,1))
+
+    # Initialise storage lists before running simulations.
+    radii = []
+    n_part_list = []
+    positions = []
+    forces = []
 
     for i in range(simulations):
-        # Run a simulation for radius
-        radius = np.random.randint(1,11)*1e-7
-        print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
-        x, fx = simulate(radius, n_part, nn)
+        # Randomly generate the radii and refractive indices.
+        if classes == 0:    
+            radius = (1e-6)*np.random.uniform(radii_range[0],radii_range[1])
+            n_part = np.random.uniform(n_range[0], n_range[1])
+        else: 
+            radius = 1e-6*(radii_range[0] + np.random.randint(0,classes)*(radii_range[1] - radii_range[0])/(classes-1))
+            n_part = n_range[0] + np.random.randint(0, classes)*(n_range[1] - n_range[0])/(classes-1)
+        
+
+        print("Beginning Simulation {}/{} For Radius: {:.3f} um, n: {:.3f} ".format(i+1, simulations, radius*1e6, n_part))
+        x, fx = simulate(radius, n_part, dt, t, nn)
 
         # Transform data into a n x 5 matrix
-        x = np.array(x)
         x = x[:,0,:]
         x = x[101:, :]
-        y = np.c_[x, radius*np.ones((x.shape[0],1)), n_part*np.ones((x.shape[0], 1))]
+        x = x[::sampling_rate, :]
 
-        fx = np.array(fx)
         fx = fx[:,0,:]
         fx = fx[101:,:]
-        fy = np.c_[fx, radius*np.ones((fx.shape[0],1)), n_part*np.ones((fx.shape[0], 1))]
-
-        with h5py.File(SAVE_LOC, "a") as file:
-            # Store results
-            file["pos"].resize((file["pos"].shape[0] + y.shape[0], 5))
-            file["pos"][-y.shape[0]:] = y
-
-            file["force"].resize((file["force"].shape[0] + fy.shape[0], 5))
-            file["force"][-fy.shape[0]:] = fy
-
-    print("All Simulations Complete")
+        fx = fx[::sampling_rate, :]
 
 
-def generate_cont_data(file, simulations, append=False):
-    """
-    Function to run the simulation code and save results using .h5 file. This function will generate continuous data ranging from 0.1 to 1 microns.
-    If append is True will append to the given file rather than write over.
-    """
-    MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
-    nn = load_model(MODEL_FILE_5DOF)
+        if not only_forces:
+            positions.append(x)
+
+        forces.append(fx)
+        radii.append(radius)
+        n_part_list.append(n_part)
+
+        # If 100 Simulations have been run save results and obtain  
+        if (i+1) % 100 == 0:
+            print("Saving Progress")
+            forces = np.stack(forces)
+            positions = np.stack(positions)
+            radii = np.array(radii)
+            radii = np.reshape(radii, (radii.shape[0], 1))
+            n_part_list = np.array(n_part_list)
+            n_part_list = np.reshape(n_part_list, (n_part_list.shape[0], 1))
+
+            write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list, only_forces)
+
+            radii = []
+            n_part_list = []
+            positions = []
+            forces = []
+
+
+    # Format lists into numpy arrays and store them
+    if len(forces) > 1:
+        forces = np.stack(forces)
+        if not only_forces:
+            positions = np.stack(positions)
+        
+    elif len(forces) == 1:
+        forces = np.array(forces)
+        if not only_forces:
+            positions = np.array(positions)
+        
     
-    SAVE_LOC = "data/" + file + ".h5"
+    radii = np.array(radii)
+    radii = np.reshape(radii, (radii.shape[0], 1))
+    n_part_list = np.array(n_part_list)
+    n_part_list = np.reshape(n_part_list, (n_part_list.shape[0], 1))
 
-    # Initialise datasets
-    if append == False:
-        with h5py.File(SAVE_LOC, "w") as file:    
-            file.create_dataset("pos", shape=(0,5), maxshape=(None,5))
-            file.create_dataset("force", shape=(0,5),  maxshape=(None,5))
-
-    for i in range(simulations):
-        # Run a simulation for radius
-        radius = np.random.uniform(1,10)*1e-7
-        print("Beginning Simulation {}/{} For Radius: {}m".format(i+1, simulations, radius))
-        x, fx = simulate(radius, n_part, nn)
-
-        # Transform data into a n x 5 matrix
-        x = np.array(x)
-        x = x[:,0,:]
-        x = x[101:, :]
-        y = np.c_[x, radius*np.ones((x.shape[0],1)), n_part*np.ones((x.shape[0], 1))]
-
-        fx = np.array(fx)
-        fx = fx[:,0,:]
-        fx = fx[101:,:]
-        fy = np.c_[fx, radius*np.ones((fx.shape[0],1)), n_part*np.ones((fx.shape[0], 1))]
-
-        with h5py.File(SAVE_LOC, "a") as file:
-            # Store results
-            file["pos"].resize((file["pos"].shape[0] + y.shape[0], 5))
-            file["pos"][-y.shape[0]:] = y
-
-            file["force"].resize((file["force"].shape[0] + fy.shape[0], 5))
-            file["force"][-fy.shape[0]:] = fy
+    if len(forces) >= 1:
+        write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list, only_forces)
 
     print("All Simulations Complete")
+
+
+def write_to_dataset(save_file, forces, positions, radii, n_part_list, only_forces):
+    '''
+    Helper function for the generate data function.
+    '''
+
+    with h5py.File(save_file, 'a') as file:
+        if not only_forces:
+            file['pos'].resize(file['pos'].shape[0] + positions.shape[0], axis=0)
+            file['pos'][-positions.shape[0]:] = positions
+
+        file['force'].resize(file['force'].shape[0] + forces.shape[0], axis=0)
+        file['force'][-forces.shape[0]:] = forces
+
+        file['radii'].resize(file['radii'].shape[0] + radii.shape[0], axis=0)
+        file['radii'][-radii.shape[0]:] = radii
+
+        file['n'].resize(file['n'].shape[0] + n_part_list.shape[0], axis=0)
+        file['n'][-n_part_list.shape[0]:] = n_part_list
+
+
+
+
 

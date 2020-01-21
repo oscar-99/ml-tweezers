@@ -1,35 +1,142 @@
 import numpy as np
-from utilities import loadup
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from mpl_toolkits import mplot3d
 from scipy.constants import c
 
-# Diagnostics for the data e.g. histograms, time series plots and statistical properties.]\
+from utilities import loadup
 
-
-def fourier(axis, series):
+sns.set()
+# Diagnostics for the data e.g. histograms, time series plots and statistical properties.
+def get_components(x):
     """
-    Generate the fourier transform for the given force axis.
-    
+    Takes array resulting from simulations and returns three arrays corresonding to the xyz components.
+    """
+    xdata = x[:,0]
+    ydata = x[:,1]
+    zdata = x[:,2]
+
+    return xdata, ydata, zdata
+
+
+def position_data_plot(file, multiple=True, radii=True):
+    """
+    Plots the positions of particle(s) in the trap and compute some statistical properties of the data. 
+
     Parameters:
-        axis (int): 0 - x axis, 1 - y axis, 2 - z axis.
+    -----------
+    file : str
+        Name of the file where the data is located.    
+    multiple : bool
+        If True plot the max, min and median on the same plot. If False plot only the median.
+    radii : bool
+        If True use radius for the measures of multiple. If False use n.
     """
-    sample_size = 10000
-    ts_len = 1000
-    f = loadup('discrete_data', "force")
-    faxis = f[:sample_size*ts_len, axis]
-    print(faxis)
-    faxis = np.reshape(faxis, (sample_size, ts_len))
-    print(faxis)
-    faxis = faxis[series, :]
+    positions = loadup(file, 'pos')
 
-    fourier = np.fft.fft(faxis)
-    plt.plot(fourier)
+    if radii:
+        dep = loadup(file, 'radii')
+    else:
+        dep = loadup(file, 'n')
+
+    # Generate indices selected.
+    sorted_indices = np.argsort(dep[:,0])
+
+    if multiple:
+        simulations = [sorted_indices[-1], sorted_indices[len(dep)//2], sorted_indices[0]]
+    else:
+        simulations = [sorted_indices[0]]
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(111, projection='3d')
+
+    colours = ['r', 'g', 'k']
+    label = []
+
+    for k, index in enumerate(simulations):
+        pos = positions[index,:,:]
+        d = dep[index,0] 
+
+        xdata, ydata, zdata = get_components(pos)
+        # Generate Plots 
+        ax1.plot3D(xdata, ydata, zdata, c=colours[k])
+
+        if radii:
+            label.append("Radius: {:.2f} \mu m".format(d*1e6))
+        else:
+            label.append("Refractive Index: {:.2f} \mu m".format(d))
+
+        # Statistics
+        print("Mean positions: ", np.mean(pos, axis=0))
+        print("Standard deviation of positions: ", np.std(pos, axis=0))
+        print("Max norm of positions: ", np.max(np.linalg.norm(pos, ord=2, axis=1)))
+
+
+    ax1.set_xlabel('X')
+    ax1.set_ylabel('Y')
+    ax1.set_zlabel('Z')
+    ax1.legend(label)
+
+    plt.title("Position Plot")
+
     plt.show()
 
-fourier(2, 0)
 
+def stat_values(file, dependent, independent):
+    """
+    Plot mean standard deviation, max, median and min norms vs. radius and n.
 
+    Parameters:
+    -----------
+    file : str
+        Name of the file where the data is located.  
+    dependent : str
+        The dependent variable to plot 'force' or 'pos'
+    independent : str
+        The independent variable to plot, 'radii' or 'n'.
+    """
+    dep = loadup(file, dependent)
+    ind = loadup(file, independent)
+
+    if ind.size < 1000:
+        num_points = ind.size
+    else:
+        num_points = 1000
+
+    # Take the first num_points points and compute the stats
+
+    sorted_indices = np.argsort(ind[:,0]) # Returns the indices that would sort ind
+
+    # List for the radii and stats
+    x = np.zeros(num_points)
+    y = np.zeros((num_points, 5))
+
+    for k, sorted_index in enumerate(sorted_indices):
+        x[k] = ind[sorted_index]
+        dep_row = dep[sorted_index,:,:]
+        norms = np.linalg.norm(dep_row, ord=2, axis=1)
+
+        y[k,:] = np.array([np.std(dep_row, axis=0)[0], np.std(dep_row, axis=0)[1], np.std(dep_row, axis=0)[2], np.max(norms), np.median(norms)])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(2, 1, 1)
+    ax2 = fig.add_subplot(2, 1, 2)
+
+    ax1.plot(x, y[:,0], 'r')
+    ax1.plot(x, y[:,1], 'b')
+    ax1.plot(x, y[:,2], 'k')
+    
+    ax2.plot(x, y[:,3])
+    ax2.plot(x, y[:,4])
+
+    ax1.legend(['std x', 'std y', 'std z'])
+    ax2.legend(['max norm', 'median norm'])
+
+    fig.suptitle("{} vs. {}".format(dependent, independent))
+
+    plt.show()
+    
 
 def plot_time_series(x, y, f):
     """
@@ -78,17 +185,6 @@ def stats_analysis(f):
         print("Force Var: {:.3f} pN".format(fzvar))
 
 
-def get_components(x):
-    """
-    Takes array resulting from simulations and returns three arrays corresonding to the xyz components.
-    """
-    xdata = x[:,0]
-    ydata = x[:,1]
-    zdata = x[:,2]
-
-    return xdata, ydata, zdata
-
-
 def plot_output(data):
     """ 
     Function that plots output of the simulation. 
@@ -111,12 +207,13 @@ def plot_output(data):
     plt.show()
 
 
-def hist(x, axis):
+def hist(file, index, axis):
     """
     Generates a histogram of the data x.
     """
-
-    xdata, ydata, zdata = get_components(x)
+    positions = loadup(file, 'pos')
+    positions = positions[index,:,:]
+    xdata, ydata, zdata = get_components(positions)
 
     if axis == "x":
         counts, bins = np.histogram(xdata, bins=100)
@@ -138,3 +235,102 @@ def hist(x, axis):
 
     plt.show()
     return counts, bins
+
+
+def hist_plot_regression(file):
+    """
+    Plots the data stored in the history file a regression run.
+    """
+    hist_data = pd.read_csv('models/' + file + '.csv')
+    plt.subplot(3, 1, 1)
+    plt.title("Loss Statistics")
+    plt.plot(hist_data["val_loss"])
+    plt.plot(hist_data["loss"])
+    plt.ylabel("Loss")
+
+    plt.subplot(3, 1, 2)
+    plt.title("Absolute Error Statistics")
+    plt.plot(hist_data["val_mean_absolute_error"])
+    plt.plot(hist_data["mean_absolute_error"])
+    plt.ylabel("Mean Absolute Error")
+    plt.legend(["Validation", "Training"] )
+
+    plt.subplot(3, 1, 3)
+    plt.title("Percentage Error Statistics")
+    plt.plot(hist_data["val_mean_absolute_percentage_error"])
+    plt.plot(hist_data["mean_absolute_percentage_error"])
+    plt.ylabel("Mean Absolute Percentage Error")
+    plt.xlabel("Epochs")
+    plt.legend(["Validation", "Training"] )
+
+    plt.show()
+
+
+def hist_plot_classify(file):
+    """
+    Plots the data stored in the history file for classify run.
+    """
+    hist_data = pd.read_csv('models/' + file + '.csv')
+    plt.subplot(2, 1, 1)
+    plt.title("Loss Statistics")
+    plt.plot(hist_data["val_loss"])
+    plt.plot(hist_data["loss"])
+
+
+    plt.subplot(2, 1, 2)
+    plt.title("Accuracy Statistics")
+    plt.plot(hist_data["val_acc"])
+    plt.plot(hist_data["acc"])
+    plt.xlabel("Epochs")
+    plt.legend(["Validation", "Training"] )
+
+    plt.show()
+
+
+def regression_error_plot(model, testing_data, testing_labels):
+    '''
+    Generates a plot of the error vs. the test labels.
+
+    Parameters:
+    -----------
+    model : keras.model
+        A keras model to make predictions.
+    testing_data : np.array
+        A numpy array containing testing data.
+    testing_labels : np.array
+        A numpy array containing the labels for the testing data.
+    '''
+
+
+    y = model.predict(testing_data)
+    y_true = testing_labels
+    error = (y_true - y)
+    error_pct = ( 100*(y_true - y)/y_true)
+
+
+    plt.subplot(1, 2, 1)
+    plt.scatter(testing_labels, error)
+    plt.ylabel('Error')
+    
+    plt.subplot(1, 2, 2)
+    plt.scatter(testing_labels, error_pct)
+    plt.ylabel('Percentage Error')
+    plt.xlabel('Test Label')
+
+    plt.show()
+
+
+def classify_error_plot():
+    '''
+    Generates a plot of the percentage correct vs. the test labels.
+
+    Parameters:
+    -----------
+    model : keras.model
+        A keras model to make predictions.
+    testing_data : np.array
+        A numpy array containing testing data.
+    testing_labels : np.array
+        A numpy array containing the labels for the testing data.
+    '''
+    pass

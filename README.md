@@ -29,7 +29,7 @@ It was decided from a review of time series classification literature (in partic
 
 
 ### Performance
-The network was trained on a GPU which significantly sped up the training
+The network was trained on a GPU which significantly sped up the process a
 
 ![1000 Epoch Training Diagnostics](/Figures/Diagnostics-1000epoch.png)
 
@@ -46,6 +46,34 @@ The network was trained on a GPU which significantly sped up the training
 - Why ResNet?
 - Transfer learning from the 5 class to the ten resulted in 98.5% (best) validation accuracy within 20 epochs. 
     - Increased number of training points 
+- Close to 0.1 starts getting dispersed positions.
+- Changing radius appears to alter the equilibrium position.
 
 # References
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
+
+
+# Progress
+## 15/1/2020
+- So far:
+    - ResNet 5 and 10 class classifier working to 99% accuracy on the testing set.
+    - Trained 1000 epoch model for the 5 class classifier.
+    - Regression ResNet coded and tested on low epoch runs (100-200) including 10000 examples, seeing 10-15% MAPE and a gap between training and testing set. Probable overfitting.
+- To do:
+    - Tighten up the possible range for regression model.
+    - Figure out the overfitting problem
+        - y force axis, linear vs. circular polarisation and information correlation between x and y.
+    - Tighten up simulation, aim to get a longer time window. Probably go with longer simulation and sampling a portion of the points.
+      - Compare this with previous results
+    - Heatmap or analysis of point that tend not to classified/regressed correctly.
+    - Code for analysis of simulated data (eg position plots, histograms etc.)
+ 
+ ## 22/1/2020
+
+- So far:
+  - Spent last few days days tightening up the simulation
+    - Add in the capacity for generating data with varying refractive index.
+    - The simulation now stores values in the format (simulations, time series length, axes) and saves them as they go.
+    - Add capacity for down-sampling the number of points generated to save on storage space as well as the length of time series passed to the model
+  - Built functions for visualizing and summarizing the data generated.
+     
