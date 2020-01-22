@@ -52,6 +52,24 @@ The network was trained on a GPU which significantly sped up the process a
 # References
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
 
+# Storage Documentation
+## Data
+### General Naming Scheme: 
+
+(type)\_data\_(changing variable(s))_(simulation time)
+
+### Examples
+- cont\_data\_n\_1: continuous data varying refractive index, one second simulation time.
+- disc(n)\_data\_r\_01: discretely varying data of n classes varying radius, 0.1 second simulation time.
+
+## Models
+### General Naming Scheme:
+
+(model)-(label variable(s))-(type)
+
+### Examples
+- resnet3-r-classify: ResNet3 radius classification model.
+- resnet3-nr-regression: ResNet3 radius and refractive index regression model.
 
 # Progress
 ## 15/1/2020
@@ -75,5 +93,9 @@ The network was trained on a GPU which significantly sped up the process a
     - Add in the capacity for generating data with varying refractive index.
     - The simulation now stores values in the format (simulations, time series length, axes) and saves them as they go.
     - Add capacity for down-sampling the number of points generated to save on storage space as well as the length of time series passed to the model
-  - Built functions for visualizing and summarizing the data generated.
+  - Built functions for visualizing and summarizing the data generated but more can be done.
+- To do:
+  - Run some models on various ranges
+  - Make output fully general (i.e. two dimensional)
+  - Get some large datasets generated
      

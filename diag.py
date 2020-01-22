@@ -106,7 +106,7 @@ def stat_values(file, dependent, independent):
 
     # Take the first num_points points and compute the stats
 
-    sorted_indices = np.argsort(ind[:,0]) # Returns the indices that would sort ind
+    sorted_indices = np.argsort(ind[:num_points,0]) # Returns the indices that would sort ind
 
     # List for the radii and stats
     x = np.zeros(num_points)

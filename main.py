@@ -21,15 +21,13 @@ radius_range = (0.6, 0.6)
 n_range = (1.5,1.7)
 classes = 0
 
-generate_data('cont_data_n', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=True)
+# generate_data('cont_data_n', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=True)
 
 
-'''
 # Plot some statistical analysis
-position_data_plot('discrete_data', radii=True)
-stat_values('discrete_data', 'force', 'radii')
-stat_values('discrete_data', 'pos', 'radii')
-'''
+position_data_plot('cont_data_n', radii=False)
+stat_values('cont_data_n', 'force', 'n')
+stat_values('cont_data_n', 'pos', 'n')
 
 # Parameters for training.
 train_test_ratio = 0.9
@@ -37,7 +35,7 @@ axes = [0, 2] # x and z axis
 sample_size = 2000
 epochs = 500
 
-
+'''
 # Process data.
 training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont_data_n', sample_size, 'n', discrete=False)
 
@@ -57,3 +55,4 @@ regression_error_plot(model, testing_data, testing_labels)
 
 
 hist_plot_regression('resnet3-nregressionhistory')
+'''
