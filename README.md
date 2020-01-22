@@ -84,7 +84,7 @@ The network was trained on a GPU which significantly sped up the process a
     - Tighten up simulation, aim to get a longer time window. Probably go with longer simulation and sampling a portion of the points.
       - Compare this with previous results
     - Heatmap or analysis of point that tend not to classified/regressed correctly.
-    - Code for analysis of simulated data (eg position plots, histograms etc.)
+    - Code for analysis of simulated data (eg. position plots, histograms etc.)
  
  ## 22/1/2020
 
@@ -98,4 +98,5 @@ The network was trained on a GPU which significantly sped up the process a
   - Run some models on various ranges
   - Make output fully general (i.e. two dimensional)
   - Get some large datasets generated
-     
+  - Analyse the advantage of the longer simulation window.
+  - Work on y axis and polarisation stuff.
