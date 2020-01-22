@@ -1,10 +1,7 @@
 import numpy as np
 import h5py
 from keras.models import load_model
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
 from scipy.constants import c
-from utilities import loadup
 
 # Runs simulation using the 5 dof neural network
 
@@ -30,7 +27,6 @@ temperature = 300 # [K]
 
 
 # Initial conditions
-# Initial z pos different?
 x0 = np.array([[0, 0, 0]])
 v0 = np.zeros((1,3))
 f0 = np.zeros((1,3))
@@ -50,6 +46,8 @@ def simulate(r, n, dt, t, net):
         Time step.
     t : float
         Total time to run simulation and a network. 
+    net : keras.model
+        A keras model which gives forces from positions.
 
     Returns
     -------
@@ -115,7 +113,7 @@ def force_comp(x, r, n, net):
     return f
 
 
-def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, classes, append=False, only_forces=True):
+def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, classes, append=True, only_forces=False):
     """
     Function to run the simulation code and save results using .h5 file.
     If append is True will append to the given file rather than write over.
@@ -151,7 +149,7 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
     print('time series length: ', t_length)
 
 
-    MODEL_FILE_5DOF = "ot-ml-supp-master/networks/5dof-position-size-ri/nn5dof_size_256.h5"
+    MODEL_FILE_5DOF = "simulation_model/5dof-position-size-ri/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
     SAVE_LOC = "data/" + file + ".h5"
@@ -245,9 +243,9 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
 
 
 def write_to_dataset(save_file, forces, positions, radii, n_part_list, only_forces):
-    '''
+    """
     Helper function for the generate data function.
-    '''
+    """
 
     with h5py.File(save_file, 'a') as file:
         if not only_forces:

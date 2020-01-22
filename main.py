@@ -21,7 +21,7 @@ radius_range = (0.6, 0.6)
 n_range = (1.5,1.7)
 classes = 0
 
-generate_data('cont_data_n', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=True)
+# generate_data('cont_data_n', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=True)
 
 
 '''
@@ -39,20 +39,20 @@ epochs = 500
 
 
 # Process data.
-training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont_data_n', sample_size, 'n', discrete=False)
+# training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont_data_n', sample_size, 'n', discrete=False)
 
-
+'''
 # Build model
 input_shape = training_data.shape[1:] # Time series length
 model = ResNetTS(input_shape, "resnet3-nregression")
 model.build_regression_output()
 model.load_weights(location='models/resnet3-10classes.h5')
 model.evaluate_regression(testing_data, testing_labels)
-model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
+# model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
 model.evaluate_regression(testing_data, testing_labels)
+'''
 
-
-regression_error_plot(model, testing_data, testing_labels)
+# regression_error_plot(model, testing_data, testing_labels)
 
 
 
