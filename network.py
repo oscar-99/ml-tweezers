@@ -27,11 +27,12 @@ class ResNetTS():
     """ 
     Class for a ResNet time series classification and regression model for multiple force axes. Architecture based off of the paper: 'Deep learning for time series classification: a review'.
     """
+
     def __init__(self, input_shape, name, verbose=True, mini_batch_size=16):
         """
         Initialise the model. Body of the model is invariant to the time series length and the output layers and is initalised.
-                |                    Body                 |
-        | Input | ConvBlock | ConvBlock | ConvBlock | GAP | Output
+        |       |                    Body                 |        |
+        | Input | ConvBlock | ConvBlock | ConvBlock | GAP | Output |
 
         Parameters:
             input_shape (tuple): (ts length, featurs) Size of the input expected.
@@ -51,7 +52,7 @@ class ResNetTS():
 
         # Build the model body
         self.build_model_body()
-         
+             
         
     def conv_block(self, factor, input):
         """
@@ -133,18 +134,31 @@ class ResNetTS():
         if self.verbose:
             self.model.summary()
 
+        # By default load up weights of previously fitted model.
+        try: 
+            self.load_weights()
+            print("Previous Weights Loaded.")
+            
+        except FileNotFoundError:
+            pass
+
     
-    def build_regression_output(self):
+    def build_regression_output(self, outs):
         """
         Build a regression output layer.
+
+        Parameters:
+        -----------
+        outs : int
+            Number of outputs of the regression. 1 for just radius or refractive index. 2 for both.
         """
-        out_layer = keras.layers.Dense(1, name='reg')(self.gap_layer)
+        out_layer = keras.layers.Dense(outs, name='reg')(self.gap_layer)
 
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
 
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='loss', save_best_only=True)
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='val_loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
         adam = keras.optimizers.Adam()
@@ -152,7 +166,14 @@ class ResNetTS():
 
         if self.verbose:
             self.model.summary()
-        
+
+        # By default load up weights of previously fitted model.
+        try: 
+            self.load_weights()
+            print("Previous Weights Loaded.")       
+        except OSError:
+            print("Previous Weights Not Loaded (Not found).")
+
 
     def fit(self, x_train, y_train, x_val, y_val, epochs):
         """
@@ -183,7 +204,7 @@ class ResNetTS():
         ev = self.model.evaluate(testing_data, testing_labels)
         message = "Model Stats:-- "
         for i, met in enumerate(self.model.metrics_names):
-            message = message + "{}: {:.2f}, ".format(met, ev[i])
+            message = message + "{}: {:.4f}, ".format(met, ev[i])
 
         print(message)
 
@@ -203,7 +224,7 @@ class ResNetTS():
         if location == None:
             self.model.load_weights(self.directory, by_name=True)
         else:
-            self.model.load_weights(location, by_name=True)
+            self.model.load_weights("models/" + location + ".h5", by_name=True)
         
 
     def save_weights(self):
@@ -217,14 +238,13 @@ class ResNetTS():
         """
         Saves log information to a .csv
         """
-        history_file = os.path.join('models', self.name + 'history.csv')
+        history_file = os.path.join('models', self.name + '-history.csv')
         try:
             hist_df = pd.read_csv(history_file)
             hist_df = hist_df.append(pd.DataFrame(self.hist.history))
 
         except FileNotFoundError:
             hist_df = pd.DataFrame(self.hist.history)
-
 
         hist_df.to_csv(history_file, index=False)
 

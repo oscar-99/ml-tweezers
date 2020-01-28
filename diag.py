@@ -7,7 +7,7 @@ from scipy.constants import c
 
 from utilities import loadup
 
-sns.set()
+
 # Diagnostics for the data e.g. histograms, time series plots and statistical properties.
 def get_components(x):
     """
@@ -20,31 +20,36 @@ def get_components(x):
     return xdata, ydata, zdata
 
 
-def position_data_plot(file, multiple=True, radii=True):
+def position_plot(file, dep, multiple=True):
     """
     Plots the positions of particle(s) in the trap and compute some statistical properties of the data. 
 
     Parameters:
     -----------
     file : str
-        Name of the file where the data is located.    
+        Name of the file where the data is located.   
+    radii : str
+        If 'n' choose time series based on refractive index. If 'radii' use radius. 
     multiple : bool
         If True plot the max, min and median on the same plot. If False plot only the median.
-    radii : bool
-        If True use radius for the measures of multiple. If False use n.
     """
     positions = loadup(file, 'pos')
 
-    if radii:
-        dep = loadup(file, 'radii')
-    else:
-        dep = loadup(file, 'n')
+    radii = loadup(file, 'radii')
+    n = loadup(file, 'n')
 
-    # Generate indices selected.
-    sorted_indices = np.argsort(dep[:,0])
+    if dep == 'radii':
+        dep_var = radii 
+        other_var = n
+    if dep == 'n':
+        dep_var = n
+        other_var = radii
+        
 
+    # Generate sorted indices.
+    sorted_indices = np.argsort(dep_var[:,0])
     if multiple:
-        simulations = [sorted_indices[-1], sorted_indices[len(dep)//2], sorted_indices[0]]
+        simulations = [sorted_indices[-1], sorted_indices[len(dep_var)//2], sorted_indices[0]]
     else:
         simulations = [sorted_indices[0]]
 
@@ -56,20 +61,20 @@ def position_data_plot(file, multiple=True, radii=True):
 
     for k, index in enumerate(simulations):
         pos = positions[index,:,:]
-        d = dep[index,0] 
+        d = dep_var[index,0] 
+        other = other_var[index, 0]
 
         xdata, ydata, zdata = get_components(pos)
         # Generate Plots 
         ax1.plot3D(xdata, ydata, zdata, c=colours[k])
 
         if radii:
-            label.append("Radius: {:.2f} \mu m".format(d*1e6))
-        else:
-            label.append("Refractive Index: {:.2f} \mu m".format(d))
+            label.append("Radius: {:.2f} um n: {:.2f}".format(d*1e6, other))
 
         # Statistics
         print("Mean positions: ", np.mean(pos, axis=0))
         print("Standard deviation of positions: ", np.std(pos, axis=0))
+        print("Correlation of x-y positions: ", np.correlate(pos[:, 0], pos[:, 1]))
         print("Max norm of positions: ", np.max(np.linalg.norm(pos, ord=2, axis=1)))
 
 
@@ -78,7 +83,7 @@ def position_data_plot(file, multiple=True, radii=True):
     ax1.set_zlabel('Z')
     ax1.legend(label)
 
-    plt.title("Position Plot")
+    plt.title("Position Plot, Varying {}".format(dep))
 
     plt.show()
 
@@ -105,33 +110,49 @@ def stat_values(file, dependent, independent):
         num_points = 1000
 
     # Take the first num_points points and compute the stats
-
     sorted_indices = np.argsort(ind[:num_points,0]) # Returns the indices that would sort ind
 
     # List for the radii and stats
     x = np.zeros(num_points)
-    y = np.zeros((num_points, 5))
+    norms  = np.zeros((num_points, 2))
+    stddev = np.zeros((num_points, 3))
+    corr = np.zeros((num_points, 3))
+
 
     for k, sorted_index in enumerate(sorted_indices):
         x[k] = ind[sorted_index]
         dep_row = dep[sorted_index,:,:]
-        norms = np.linalg.norm(dep_row, ord=2, axis=1)
 
-        y[k,:] = np.array([np.std(dep_row, axis=0)[0], np.std(dep_row, axis=0)[1], np.std(dep_row, axis=0)[2], np.max(norms), np.median(norms)])
+        # Each simulation compute the norm of the position or force and store the median an max norm.
+        norm = np.linalg.norm(dep_row, ord=2, axis=1)
+        norms[k, :2] = np.array([np.max(norm), np.median(norm)])
+
+        # Each simulation compute the standard deviation and store it.
+        stddev[k,:3] = np.array([np.std(dep_row, axis=0)[0], np.std(dep_row, axis=0)[1], np.std(dep_row, axis=0)[2]])
+
+        corr[k,:3] = np.array([np.correlate(dep_row[:, 0], dep_row[:, 1]),np.correlate(dep_row[:, 0], dep_row[:, 2]), 
+        np.correlate(dep_row[:, 1], dep_row[:, 2])] )[:, 0]
+
 
     fig = plt.figure()
-    ax1 = fig.add_subplot(2, 1, 1)
-    ax2 = fig.add_subplot(2, 1, 2)
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
 
-    ax1.plot(x, y[:,0], 'r')
-    ax1.plot(x, y[:,1], 'b')
-    ax1.plot(x, y[:,2], 'k')
+    ax1.plot(x, stddev[:,0], 'r')
+    ax1.plot(x, stddev[:,1], 'b')
+    ax1.plot(x, stddev[:,2], 'k')
     
-    ax2.plot(x, y[:,3])
-    ax2.plot(x, y[:,4])
+    ax2.plot(x, norms[:,0])
+    ax2.plot(x, norms[:,1])
 
-    ax1.legend(['std x', 'std y', 'std z'])
-    ax2.legend(['max norm', 'median norm'])
+    ax3.plot(x, corr[:, 0])
+    ax3.plot(x, corr[:, 1])
+    ax3.plot(x, corr[:, 2])
+
+    ax1.legend(['Std x', 'Std y', 'Std z'])
+    ax2.legend(['Max norm', 'Median norm'])
+    ax3.legend(['Correlation x-y', 'Correlation x-z', 'Correlation y-z'])
 
     fig.suptitle("{} vs. {}".format(dependent, independent))
 
@@ -237,16 +258,17 @@ def hist(file, index, axis):
     return counts, bins
 
 
-def hist_plot_regression(file):
+def history_plot_regression(model):
     """
     Plots the data stored in the history file a regression run.
     """
-    hist_data = pd.read_csv('models/' + file + '.csv')
+    hist_data = pd.read_csv("models/" + model.name +"-history.csv")
     plt.subplot(3, 1, 1)
     plt.title("Loss Statistics")
     plt.plot(hist_data["val_loss"])
     plt.plot(hist_data["loss"])
     plt.ylabel("Loss")
+    plt.legend(["Validation", "Training"] )
 
     plt.subplot(3, 1, 2)
     plt.title("Absolute Error Statistics")
@@ -266,7 +288,7 @@ def hist_plot_regression(file):
     plt.show()
 
 
-def hist_plot_classify(file):
+def history_plot_classify(file):
     """
     Plots the data stored in the history file for classify run.
     """
@@ -301,16 +323,15 @@ def regression_error_plot(model, testing_data, testing_labels):
         A numpy array containing the labels for the testing data.
     '''
 
-
     y = model.predict(testing_data)
     y_true = testing_labels
     error = (y_true - y)
     error_pct = ( 100*(y_true - y)/y_true)
 
-
     plt.subplot(1, 2, 1)
     plt.scatter(testing_labels, error)
     plt.ylabel('Error')
+    plt.xlabel('Test Label')
     
     plt.subplot(1, 2, 2)
     plt.scatter(testing_labels, error_pct)
@@ -320,7 +341,7 @@ def regression_error_plot(model, testing_data, testing_labels):
     plt.show()
 
 
-def classify_error_plot():
+def classify_error_plot(model, testing_data, testing_label):
     '''
     Generates a plot of the percentage correct vs. the test labels.
 
@@ -333,4 +354,28 @@ def classify_error_plot():
     testing_labels : np.array
         A numpy array containing the labels for the testing data.
     '''
-    pass
+
+    results = {}
+    for k in range(testing_label.size):
+        result = np.argmax(model.predict(testing_data[k, :, : ]))
+        true_val = np.argmax(testing_label)
+        if result == true_val:
+            correct = 1
+        else:
+            correct = 0
+        
+        if true_val in results.keys():
+            results[true_val].append(correct)
+        else:
+            results[true_val] = [correct]
+
+    labels = []
+    props = []
+    for label, correct_list in results.items(): 
+        labels.append(label)
+        props.append(sum(correct_list/len(correct_list)))       
+    
+    plt.bar(np.arange(len(labels)), props)
+    plt.xticks(np.arange(len(labels)), labels)
+    plt.ylabel("Proportion Correct")
+    plt.title("Test Prediction Breakdown")

@@ -59,7 +59,7 @@ def ts_data_prep(split, axes, file, sample_size, target_var, discrete=True):
     testing_data = faxis[split_index:, :, :]
 
     training_labels = tar[:split_index, :]
-    testing_labels = tar[split_index:, :]
+    testing_labels = tar[split_index:sample_size, :]
 
     return training_data, training_labels, testing_data, testing_labels
 
@@ -106,3 +106,60 @@ def one_hot(x):
 
     return one_hot
     
+
+def remove_from_file(file_loc, var, val_range):
+    '''
+    Removes values that fall outside of val_range for var.
+
+    Parameters:
+    -----------
+    file_loc : str
+        File location.
+    var : str
+        Variable 
+    val_range : (float, float)
+        Range of valid values of var.
+    '''
+
+    # Load up the files.
+    only_forces = False
+    n = loadup(file_loc, 'n')
+    radii = loadup(file_loc, 'radii')
+    forces = loadup(file_loc, 'force')
+
+    # Check if positions have been stored before loading up.
+    try:
+        positions = loadup(file_loc, 'pos')
+    except KeyError:
+        only_forces = True
+
+    # Find indices where values fall in range.
+    if var == 'n':
+        valid_indices = np.argwhere( np.logical_and(val_range[0] < n, n < val_range[1]) )
+    else:
+        valid_indices = np.argwhere( np.logical_and(val_range[0] < radii, radii < val_range[1]) )
+
+    # Get the values where constraints hold.
+    valid_indices = valid_indices[:,0]
+
+    radii = radii[valid_indices]
+    n = n[valid_indices]
+    forces = forces[valid_indices, :, :]
+    positions = positions[valid_indices, :, :]
+
+    # Write new values over old.
+    with h5py.File('data/' + file_loc + '.h5', "a") as file: 
+        if not only_forces:
+            file['pos'].resize(positions.shape[0], axis=0)
+            file['pos'][:,:] = positions
+
+        file['force'].resize(forces.shape[0], axis=0)
+        file['force'][:,:,:] = forces
+
+        file['radii'].resize(radii.shape[0], axis=0)
+        file['radii'][:,:] = radii
+
+        file['n'].resize(n.shape[0], axis=0)
+        file['n'][:,:] = n
+
+

@@ -10,7 +10,7 @@ import os
 # os.environ['KMP_DUPLICATE_LIB_OK']='True
 
 # Fixes problem with numpy dlls on windows (for my pc)
-os.environ['PATH']
+# os.environ['PATH']
 
 # Particle Properties
 n_part = 1.59 # range: 1.33 - 2.0
@@ -144,12 +144,11 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
     buffer = dt*100 # Generate 100 more points than needed so first 100 can be discarded.
     t += buffer
 
-    print((t-buffer)/(dt*sampling_rate) )
     t_length = int((t-buffer)/(dt*sampling_rate) ) # Number of points
-    print('time series length: ', t_length)
+    print('Time Series Length: ', t_length)
 
-
-    MODEL_FILE_5DOF = "simulation_model/5dof-position-size-ri/nn5dof_size_256.h5"
+    # Save locations
+    MODEL_FILE_5DOF = "simulation_model/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
     SAVE_LOC = "data/" + file + ".h5"

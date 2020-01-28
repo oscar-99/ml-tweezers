@@ -16,7 +16,7 @@ A neural network which has been trained to predict the forces on a particle give
 As a first step it will be attempted to classify time series of length 1000 into n (so far 5 and 10) classes of radii evenly spaced from 0.2 $\mu m$ to 1 $\mu m$. This problem will serve as a proof of concept as well as a base to build on for extending the model. The weights that are computed can be used as a base for a regression problem or for a base for classification of refractive index.
 
 ## Regression Problem
-Regression replaces the discretised classes from the classification problem with a continuously varying output space. This is a more general and realistic problem as on any practical application of the network there will not be the same set of 5 or 10 radii.
+Regression replaces the discrete classes from the classification problem with a continuously varying output space. This is a more general and realistic problem as on any practical application of the network there will not be the same set of 5 or 10 radii.
 - How is it different to the classification problem
 - Challenges
 
@@ -27,11 +27,20 @@ It was decided from a review of time series classification literature (in partic
 - Highly transferable: can use trained weights as initialisation for regression model or for pretraining an experimentally generated dataset.
 - Can generate as much data as needed which suits a deep learning approach
 
-
 ### Performance
 The network was trained on a GPU which significantly sped up the process a
 
-![1000 Epoch Training Diagnostics](/Figures/Diagnostics-1000epoch.png)
+
+# Radii and Refractive Index Prediction
+
+## Data - Moving from One Variable to Two
+When testing each of the variables on their own it was found that radii from 0.2 to 1 microns produced regular trapping behaviour for a refractive index of 1.59 while refractive indices from 1.4 to 1.75 produced regular trapping behaviour with a radius 0.6 microns. 
+
+This will serve as the basis for values selected while simulating data which varies in both variables. From
+
+
+
+
 
 
 # Summary 
@@ -56,20 +65,23 @@ The network was trained on a GPU which significantly sped up the process a
 ## Data
 ### General Naming Scheme: 
 
-(type)\_data\_(changing variable(s))_(simulation time)
+(type)-data-(changing variable(s))-(simulation time)-(sampling rate)
 
 ### Examples
-- cont\_data\_n\_1: continuous data varying refractive index, one second simulation time.
-- disc(n)\_data\_r\_01: discretely varying data of n classes varying radius, 0.1 second simulation time.
+- cont-data-n-1-10: continuous data varying refractive index, one second simulation time with sampling rate of 10.
+- disc6-data-r-01-1: discretely varying data of 6 classes varying radius, 0.1 second simulation time with sampling rate of 1.
 
 ## Models
 ### General Naming Scheme:
 
-(model)-(label variable(s))-(type)
+(model)-(label variable(s))-(type)-(axes)
 
 ### Examples
-- resnet3-r-classify: ResNet3 radius classification model.
-- resnet3-nr-regression: ResNet3 radius and refractive index regression model.
+- resnet3-r-classify-xz: ResNet3 radius classification model on the xz axes.
+- resnet3-nr-regression-xyz: ResNet3 radius and refractive index regression model run on the xyz axes.
+
+## History file
+For given model add -history.csv at the end.
 
 # Progress
 ## 15/1/2020
@@ -96,7 +108,35 @@ The network was trained on a GPU which significantly sped up the process a
   - Built functions for visualizing and summarizing the data generated but more can be done.
 - To do:
   - Run some models on various ranges
-  - Make output fully general (i.e. two dimensional)
+  - Make network and data clean general (i.e. two dimensional)
   - Get some large datasets generated
   - Analyse the advantage of the longer simulation window.
   - Work on y axis and polarisation stuff.
+  - Nail down radius and n ranges where well behaved.
+
+## 28/1/2020 - email
+Hey Lachlan,
+
+I have some figures you can accuracy/loss plot figures you can use from training my ResNet time series model. I will give you a bit of background here so you can have some idea whether or not you want to include this stuff, we can talk in more detail if you want tomorrow. Also if you don't want to include any of this stuff that is fine too, it is totally up to you.
+
+The basic idea was to generate 5000 force time series, each 1000 long and with 3 force axes, corresponding to different refractive indices uniformly distributed from 1.4 to 1.75 and a constant radius of 0.6. The model is then fed the time series and spits out a continuous (regression) output targeting the refractive index that generated the time series. 
+
+The first Image is of the validation loss, error and percentage error as model trains. The best it ended up getting over the 600 epochs was about ~0.75% error which I think is ok but can certainly get better with tweaking and more training. 
+
+The second image is the error and percentage error by the refractive index, the aim is to see where 'problem' refractive indices are (i.e. ones that the model tends to miss). To me the distribution of errors over the value of refractive index looks fairly uniform so maybe not a lot of info to be gleaned. 
+
+I am hoping to next work on regressing both radius and refractive index. This is where I will apply a lot of the fine tuning ideas that we have come up with. 
+
+Regards,
+
+Oscar Smee
+Images: regression_n_loss_accuracy, regression_n_accuracyvsn
+
+
+## 29/1/2020
+- So Far:
+  - Happy with performance for 600 epochs on refractive index regression. Ready to move onto full generality of model where I think a lot of the ideas about overfitting/tightening up the models can be applied. 
+  - Adding in y axis forces has very little cost in time and seems to help with over fitting
+- To do:
+  - Create heatmap/3d plots of std and correlations
+  - Figure out combinations of valid values
