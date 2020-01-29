@@ -139,4 +139,6 @@ Images: regression_n_loss_accuracy, regression_n_accuracyvsn
   - Adding in y axis forces has very little cost in time and seems to help with over fitting
 - To do:
   - Create heatmap/3d plots of std and correlations
-  - Figure out combinations of valid values
+  - Figure out combinations of valid values.
+  - Generate dataset
+  - Generate heatmap to diagnose 

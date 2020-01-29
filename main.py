@@ -30,14 +30,14 @@ radius_range = (0.2,0.2)
 n_range = (1.4, 1.4)
 classes = 0
 
-
+'''
 generate_data('radii_test', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=False)
 
 # Plot some statistical analysis
 position_plot('radii_test', 'radii')
 stat_values('radii_test', 'force', 'radii')
 stat_values('radii_test', 'pos', 'radii')
-
+'''
 
 # Parameters for training.
 train_test_ratio = 0.9
@@ -46,9 +46,8 @@ sample_size = 5000
 epochs = 85
 
 
-'''
 # Process data.
-training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont-data-n-01-1', sample_size, 'n', discrete=False)
+# training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont-data-n-01-1', sample_size, 'n', discrete=False)
 
 
 # Build and train model
@@ -62,4 +61,3 @@ model.evaluate_regression(testing_data, testing_labels)
 # Diagnostics
 history_plot_regression(model)
 regression_error_plot(model, testing_data, testing_labels)
-'''

@@ -264,6 +264,7 @@ def history_plot_regression(model):
     """
     hist_data = pd.read_csv("models/" + model.name +"-history.csv")
     plt.subplot(3, 1, 1)
+    plt.yscale("log")
     plt.title("Loss Statistics")
     plt.plot(hist_data["val_loss"])
     plt.plot(hist_data["loss"])
