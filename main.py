@@ -1,3 +1,4 @@
+# File to mainly handle visualizing and statistical analysis of the data.
 import logging
 import os
 
@@ -17,47 +18,34 @@ import keras
 
 from utilities import loadup, store, ts_data_prep, remove_from_file
 from network import ResNetTS
-from simulation import simulate, generate_data, force_comp
-from diag import stat_values, position_plot, hist, history_plot_regression, history_plot_classify, regression_error_plot
+from simulation import simulate, generate_data, force_comp, generate_2d_data
+from diag import stat_values, position_plot, hist, history_plot_regression, history_plot_classify, regression_error_plot, data_distribution_plot
 
 sns.set()
 
-# Parameters for generating data.
-t = 1
-simulations = 1
-sampling_rate = 1
-radius_range = (0.2,0.2)
-n_range = (1.4, 1.4)
-classes = 0
+# Statistical analysis of data
+t = 0.1
 
-'''
-generate_data('radii_test', t, simulations, sampling_rate, radius_range, n_range, classes, only_forces=False, append=False)
+sampling_rate = 1
+radius_range = (0.4,0.6)
+n_range = (1.5, 1.7)
+r_tiles = 20
+n_tiles = 20
+simulations = 2*r_tiles*n_tiles
+
+n_edges = np.linspace(n_range[0], n_range[1], n_tiles+1)
+r_edges = np.linspace(radius_range[0], radius_range[1], r_tiles+1)
+
+ # generate_2d_data('cont-data-nr-01-1', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles)
+
+data_distribution_plot('cont-data-nr-01-1', 1*n_tiles, 1*r_tiles, [n_edges, r_edges])
+
+# data_distribution_plot('cont-data-nr-01-1', 2*n_tiles, 2*r_tiles)
+ 
+
 
 # Plot some statistical analysis
-position_plot('radii_test', 'radii')
-stat_values('radii_test', 'force', 'radii')
-stat_values('radii_test', 'pos', 'radii')
-'''
+# position_plot('radii_test', 'n', multiple=False)
+# stat_values('radii_test', 'force', 'radii')
+# stat_values('radii_test', 'pos', 'radii')
 
-# Parameters for training.
-train_test_ratio = 0.9
-axes = [0, 1, 2] # x, y and z axis
-sample_size = 5000
-epochs = 85
-
-
-# Process data.
-# training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont-data-n-01-1', sample_size, 'n', discrete=False)
-
-
-# Build and train model
-input_shape = training_data.shape[1:] # Time series length
-model = ResNetTS(input_shape, "resnet3-n-regression-xyz")
-model.build_regression_output(1)
-# model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
-model.evaluate_regression(testing_data, testing_labels)
-
-
-# Diagnostics
-history_plot_regression(model)
-regression_error_plot(model, testing_data, testing_labels)

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from mpl_toolkits import mplot3d
 from scipy.constants import c
+from scipy.stats import binned_statistic_2d
 
 from utilities import loadup
 
@@ -62,14 +63,12 @@ def position_plot(file, dep, multiple=True):
     for k, index in enumerate(simulations):
         pos = positions[index,:,:]
         d = dep_var[index,0] 
-        other = other_var[index, 0]
 
         xdata, ydata, zdata = get_components(pos)
         # Generate Plots 
         ax1.plot3D(xdata, ydata, zdata, c=colours[k])
 
-        if radii:
-            label.append("Radius: {:.2f} um n: {:.2f}".format(d*1e6, other))
+        label.append("Radius: {:.2f} um n: {:.2f}".format(radii[index,0]*1e6, n[index, 0]))
 
         # Statistics
         print("Mean positions: ", np.mean(pos, axis=0))
@@ -206,28 +205,6 @@ def stats_analysis(f):
         print("Force Var: {:.3f} pN".format(fzvar))
 
 
-def plot_output(data):
-    """ 
-    Function that plots output of the simulation. 
-    """
-
-    xdata, ydata, zdata = get_components(data)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot3D(xdata, ydata, zdata)
-
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-
-    ax.set_xlim3d(-10e-8, 10e-8)
-    ax.set_ylim3d(-10e-8, 10e-8)
-    ax.set_zlim3d(0, 50e-8)
-
-    plt.show()
-
-
 def hist(file, index, axis):
     """
     Generates a histogram of the data x.
@@ -270,14 +247,15 @@ def history_plot_regression(model):
     plt.plot(hist_data["loss"])
     plt.ylabel("Loss")
     plt.legend(["Validation", "Training"] )
-
+    
     plt.subplot(3, 1, 2)
     plt.title("Absolute Error Statistics")
+    plt.yscale("log")
     plt.plot(hist_data["val_mean_absolute_error"])
     plt.plot(hist_data["mean_absolute_error"])
     plt.ylabel("Mean Absolute Error")
     plt.legend(["Validation", "Training"] )
-
+    
     plt.subplot(3, 1, 3)
     plt.title("Percentage Error Statistics")
     plt.plot(hist_data["val_mean_absolute_percentage_error"])
@@ -328,7 +306,7 @@ def regression_error_plot(model, testing_data, testing_labels):
     y_true = testing_labels
     error = (y_true - y)
     error_pct = ( 100*(y_true - y)/y_true)
-
+    
     plt.subplot(1, 2, 1)
     plt.scatter(testing_labels, error)
     plt.ylabel('Error')
@@ -380,3 +358,83 @@ def classify_error_plot(model, testing_data, testing_label):
     plt.xticks(np.arange(len(labels)), labels)
     plt.ylabel("Proportion Correct")
     plt.title("Test Prediction Breakdown")
+
+
+def error_plot_2d(model, data, labels):
+    '''
+    A function to visualize the error for 2d regression.
+
+    Parameters:
+    -----------
+    model : ResNetTS
+        A keras model that outputs. 
+    data : np.array
+        Some data for the model.
+    labels : np.array
+        The labels for the data.
+    '''
+
+    y = model.predict(data)
+    dy = y - labels
+    print(dy)
+    n_error = dy[:, 0]
+    r_error = dy[:, 1]
+
+    n = labels[:, 0]
+    r = labels[:, 1]
+
+    n_error_pct = 100*n_error / n
+    n_bins = binned_statistic_2d(n, r, n_error_pct, statistic='mean', bins=[30, 20])
+
+    x_labels = ['{:.2f}'.format(x) for x in n_bins.x_edge]
+    y_labels = ['{:.2f}'.format(y) for y in n_bins.y_edge]
+
+    x_labels = x_labels[::3]
+    y_labels = y_labels[::2]
+
+    print(len(x_labels))
+    ax = sns.heatmap(n_bins.statistic, xticklabels=x_labels, yticklabels=y_labels)
+
+    plt.show()
+
+
+
+def data_distribution_plot(file, n_tiles, r_tiles, bins):
+    '''
+    Plot the distribution of the simulated data.
+
+    Parameters:
+    -----------
+    file : str
+        The filename of the data.
+    n_tiles : int
+        The number of tiles for n values.
+    r_tiles : int
+        The number of tiles for the r values.
+    '''
+    n = loadup(file, 'n')
+    r = loadup(file, 'radii')
+
+    # Univariate data
+    if np.all(np.isclose(r, r[0, 0])):
+        plt.hist(n, bins=20)
+        plt.xlabel("Refractive Index")
+
+    elif np.all(np.isclose(n, n[0,0])):
+        plt.hist(r, bins=20)
+        plt.xlabel("Radius (metres)")
+
+    else:
+        # hist2d expects (m,) shape
+        h, xedges, yedges,_ = plt.hist2d(n[:,0], r[:,0], bins=bins)
+        plt.xlabel("Refractive Index")
+        plt.ylabel("Radius (metres)")
+        cbar = plt.colorbar()
+        cbar.ax.set_ylabel('Counts')
+
+    plt.title("Plot of Data Distribution")
+    print("Total Point Count: {}".format(n.size))
+    plt.show()
+    
+
+    

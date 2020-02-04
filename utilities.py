@@ -3,9 +3,10 @@ import h5py
 import matplotlib.pyplot as plt
 import pandas as pd
 from keras.utils import to_categorical
+from sklearn.utils import shuffle
 
 
-def ts_data_prep(split, axes, file, sample_size, target_var, discrete=True):
+def ts_data_prep(split, axes, file, sample_size, target_vars, discrete=False):
     """
     Function for prepping univariate force data in a time series format to train a regression. Loads up the force and radius data, performs z normalisation and generate the training/testing split
 
@@ -19,26 +20,32 @@ def ts_data_prep(split, axes, file, sample_size, target_var, discrete=True):
         The file where the data is located.
     sample_size : int
         The number of simulated time series to train on.
-    target : str
-        The variable that is changing and to be predicted, 'radii' or 'n'.
+    target_vars : list[str]
+        A list of the target variables 'radii' and/or 'n'.
     discrete : bool
         If True data is discrete else continuous.
     """
-    # Parameters of data
-    ts_len = 1000 
 
     # Load up data
     f = loadup(file, "force")
-    tar = loadup(file, target_var)
+    n = loadup(file, 'n')
+    r = loadup(file, 'radii')*1e6
 
-
-    # Clean up and format radii and forces
-    if target_var == 'radii':
-        tar *= 1e6 # Change of units to microns
+    # Generate target vectors.
+    if len(target_vars) == 2:
+        targets = np.stack((n, r), axis=1)
+        targets = np.reshape(targets, (targets.shape[0], targets.shape[1]))
+    else: 
+        if target_vars[0] == 'n':
+            targets = n
+        else:
+            targets = r
     
+    targets = targets[:sample_size,:]
+        
     # If discrete data one hot encode.
-    if discrete:
-        tar = one_hot(tar)
+    if discrete and len(target_vars) == 1:
+        targets = one_hot(targets)
 
     forces = []
 
@@ -53,13 +60,17 @@ def ts_data_prep(split, axes, file, sample_size, target_var, discrete=True):
         forces.append(faxis)
 
     faxis = np.stack(forces, axis=2)
+
+    # Shuffle the targets and data using sklearn.utils
+    # faxis, targets = shuffle(faxis, targets)
+
     split_index = int(np.ceil(split*sample_size))
     
     training_data = faxis[:split_index, :, :]
     testing_data = faxis[split_index:, :, :]
 
-    training_labels = tar[:split_index, :]
-    testing_labels = tar[split_index:sample_size, :]
+    training_labels = targets[:split_index, :]
+    testing_labels = targets[split_index:, :]
 
     return training_data, training_labels, testing_data, testing_labels
 
@@ -107,14 +118,14 @@ def one_hot(x):
     return one_hot
     
 
-def remove_from_file(file_loc, var, val_range):
+def remove_from_file(file, var, val_range):
     '''
     Removes values that fall outside of val_range for var.
 
     Parameters:
     -----------
     file_loc : str
-        File location.
+        File name.
     var : str
         Variable 
     val_range : (float, float)
@@ -123,13 +134,13 @@ def remove_from_file(file_loc, var, val_range):
 
     # Load up the files.
     only_forces = False
-    n = loadup(file_loc, 'n')
-    radii = loadup(file_loc, 'radii')
-    forces = loadup(file_loc, 'force')
+    n = loadup(file, 'n')
+    radii = loadup(file, 'radii')
+    forces = loadup(file, 'force')
 
     # Check if positions have been stored before loading up.
     try:
-        positions = loadup(file_loc, 'pos')
+        positions = loadup(file, 'pos')
     except KeyError:
         only_forces = True
 
@@ -148,7 +159,7 @@ def remove_from_file(file_loc, var, val_range):
     positions = positions[valid_indices, :, :]
 
     # Write new values over old.
-    with h5py.File('data/' + file_loc + '.h5', "a") as file: 
+    with h5py.File('data/' + file + '.h5', "a") as file: 
         if not only_forces:
             file['pos'].resize(positions.shape[0], axis=0)
             file['pos'][:,:] = positions

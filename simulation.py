@@ -2,6 +2,7 @@ import numpy as np
 import h5py
 from keras.models import load_model
 from scipy.constants import c
+import random
 
 # Runs simulation using the 5 dof neural network
 
@@ -32,7 +33,7 @@ v0 = np.zeros((1,3))
 f0 = np.zeros((1,3))
 
 
-def simulate(r, n, dt, t, net):
+def simulate(r, n, dt, t, net, verbose):
     """
     Simulates motion of a particle given a neural network.
     
@@ -48,6 +49,8 @@ def simulate(r, n, dt, t, net):
         Total time to run simulation and a network. 
     net : keras.model
         A keras model which gives forces from positions.
+    verbose: bool
+        Verbose output. 
 
     Returns
     -------
@@ -57,7 +60,7 @@ def simulate(r, n, dt, t, net):
     x = [x0]
     fx = [f0]
     nsteps = int(np.ceil(t/dt)) 
-    completion_stages = [0.25, 0.50, 0.75, 1]
+    completion_stages = [0.50, 1]
 
     for k in range(nsteps):
         x1 = x[k]
@@ -155,14 +158,8 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
 
 
     # Initialise datasets
-    if append == False:
-        with h5py.File(SAVE_LOC, "w") as file:    
-            if not only_forces:
-                file.create_dataset("pos", shape=(0,t_length,3), maxshape=(None, t_length, 3))
-
-            file.create_dataset("force", shape=(0,t_length,3),  maxshape=(None, t_length, 3))
-            file.create_dataset("radii", shape=(0,1), maxshape=(None,1))
-            file.create_dataset("n", shape=(0,1), maxshape=(None,1))
+    if not os.path.exists(SAVE_LOC):
+        create_dataset(SAVE_LOC, t_length)
 
     # Initialise storage lists before running simulations.
     radii = []
@@ -180,12 +177,11 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
             n_part = n_range[0] + np.random.randint(0, classes)*(n_range[1] - n_range[0])/(classes-1)
         
 
-        print("Beginning Simulation {}/{} For Radius: {:.3f} um, n: {:.3f} ".format(i+1, simulations, radius*1e6, n_part))
-        x, fx = simulate(radius, n_part, dt, t, nn)
+        print("Beginning Simulation {}/{} For Radius: {:.3f} um, n: {:.3f} ".format(i+1, int(simulations), radius*1e6, n_part))
+        x, fx = simulate(radius, n_part, dt, t, nn, True)
 
-        # Transform data into a n x 5 matrix
         x = x[:,0,:]
-        x = x[101:, :]
+        x = x[101:, :] # Cut out first hundred points
         x = x[::sampling_rate, :]
 
         fx = fx[:,0,:]
@@ -203,53 +199,41 @@ def generate_data(file, t, simulations, sampling_rate, radii_range, n_range, cla
         # If 100 Simulations have been run save results and obtain  
         if (i+1) % 100 == 0:
             print("Saving Progress")
-            forces = np.stack(forces)
-            positions = np.stack(positions)
-            radii = np.array(radii)
-            radii = np.reshape(radii, (radii.shape[0], 1))
-            n_part_list = np.array(n_part_list)
-            n_part_list = np.reshape(n_part_list, (n_part_list.shape[0], 1))
-
-            write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list, only_forces)
+            write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list)
 
             radii = []
             n_part_list = []
             positions = []
             forces = []
 
-
-    # Format lists into numpy arrays and store them
-    if len(forces) > 1:
-        forces = np.stack(forces)
-        if not only_forces:
-            positions = np.stack(positions)
-        
-    elif len(forces) == 1:
-        forces = np.array(forces)
-        if not only_forces:
-            positions = np.array(positions)
-        
-    
-    radii = np.array(radii)
-    radii = np.reshape(radii, (radii.shape[0], 1))
-    n_part_list = np.array(n_part_list)
-    n_part_list = np.reshape(n_part_list, (n_part_list.shape[0], 1))
-
+    # Save remaining lists.
     if len(forces) >= 1:
-        write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list, only_forces)
+        write_to_dataset(SAVE_LOC, forces, positions, radii, n_part_list)
 
     print("All Simulations Complete")
 
 
-def write_to_dataset(save_file, forces, positions, radii, n_part_list, only_forces):
+def write_to_dataset(save_file, forces_list, positions_list, r_list, n_list):
     """
-    Helper function for the generate data function.
+    Helper function for the generate data function which writes the values in the lists to the dataset in the correct format.
     """
+    # Stack up into array format.
+    if len(forces_list) > 1:
+        forces = np.stack(forces_list)
+        positions = np.stack(positions_list)
+    else: 
+        forces = np.array(forces_list)
+        positions = np.array(positions_list)
+
+    radii = np.array(r_list)
+    radii = np.reshape(radii, (radii.shape[0], 1))
+    ns = np.array(n_list)
+    ns = np.reshape(ns, (ns.shape[0], 1))
 
     with h5py.File(save_file, 'a') as file:
-        if not only_forces:
-            file['pos'].resize(file['pos'].shape[0] + positions.shape[0], axis=0)
-            file['pos'][-positions.shape[0]:] = positions
+        # Write to h5 file.
+        file['pos'].resize(file['pos'].shape[0] + positions.shape[0], axis=0)
+        file['pos'][-positions.shape[0]:] = positions
 
         file['force'].resize(file['force'].shape[0] + forces.shape[0], axis=0)
         file['force'][-forces.shape[0]:] = forces
@@ -257,8 +241,138 @@ def write_to_dataset(save_file, forces, positions, radii, n_part_list, only_forc
         file['radii'].resize(file['radii'].shape[0] + radii.shape[0], axis=0)
         file['radii'][-radii.shape[0]:] = radii
 
-        file['n'].resize(file['n'].shape[0] + n_part_list.shape[0], axis=0)
-        file['n'][-n_part_list.shape[0]:] = n_part_list
+        file['n'].resize(file['n'].shape[0] + ns.shape[0], axis=0)
+        file['n'][-ns.shape[0]:] = ns
+
+
+def create_dataset(save_loc, t_length):
+    """ Function that creates a dataset. """
+    with h5py.File(save_loc, "w") as file:    
+        file.create_dataset("pos", shape=(0,t_length,3), maxshape=(None, t_length, 3))
+        file.create_dataset("force", shape=(0,t_length,3),  maxshape=(None, t_length, 3))
+        file.create_dataset("radii", shape=(0,1), maxshape=(None,1))
+        file.create_dataset("n", shape=(0,1), maxshape=(None,1))
+
+
+def generate_2d_data(file, t, simulations, sampling_rate, radii_range, n_range,r_tiles, n_tiles, verbose=True):
+    """
+    A function which improves upon the generate dataset function for the 2d case. The function will generate a n_tiles x r_tiles grid from which tiles will be selected and used as the bounds of the uniform distribution. 
+    This will ensure a more even coverage down to a certain resolution.
+    
+    Should be able to handle n_tiles, r_tiles >=1.
+    """
+    # Generate vectors of boundaries.
+    n = np.linspace(n_range[0], n_range[1], n_tiles+1)
+    r = np.linspace(radii_range[0], radii_range[1], r_tiles+1)
+
+    # Indices and counter.
+    j = 0
+    i = 0
+    k = 0
+
+    # Initialize list of n and r values.
+    n_r_list = []
+
+    # Generate refractive indices and radii 
+    if verbose:
+        print('Generate refractive indices and radii.')
+
+    while k < simulations:
+        n_val = np.random.uniform(n[i], n[i+1])
+        r_val = (1e-6)*np.random.uniform(r[j], r[j+1])
+        n_r_list.append((n_val, r_val))
+
+        # If at end of row. 
+        if i + 1 == (n_tiles):
+            # If at end of column.
+            if j + 1 == (r_tiles):
+                # Reset.
+                i = 0
+                j = 0
+            # Otherwise move down a column. 
+            else:    
+                i = 0
+                j += 1 
+        # Otherwise move along the row
+        else:
+            i +=1 
+
+        k += 1
+    
+    # Shuffle the index and radius array.
+    random.shuffle(n_r_list)
+    if verbose:
+        print('Refractive indices and radii generation complete.')
+
+
+    if verbose:
+        print("Beginning Simulation.")
+
+    # Simulation parameters
+    dt = 1e-4 # Simulation time step
+    buffer = dt*100 # Generate 100 more points than needed so first 100 can be discarded.
+    t += buffer
+
+    t_length = int((t-buffer)/(dt*sampling_rate) ) # Number of points
+    if verbose:
+        print('Time Series Length: ', t_length)
+
+    # Save locations
+    MODEL_FILE_5DOF = "simulation_model/nn5dof_size_256.h5"
+    nn = load_model(MODEL_FILE_5DOF)
+    
+    SAVE_LOC = "data/" + file + ".h5"
+
+    # If the path does not exist, create it otherwise only create it if append
+    if not os.path.exists(SAVE_LOC):
+        create_dataset(SAVE_LOC, t_length)
+        
+    # Initialise value lists
+    n_list = []
+    r_list = []
+    forces_list = []
+    positions_list = []
+
+    # Iterate across the radii and refractive indices
+    k = 0 # Counter
+    for n, r in n_r_list:
+        if verbose:
+            print("Simulation {}/{} For Radius: {:.3f} um, n: {:.3f}".format(k+1, simulations, r*1e6, n))
+
+        # Run simulation. 
+        x, fx = simulate(r, n, dt, t, nn, verbose)
+
+        x = x[:,0,:]
+        x = x[101:, :]
+        x = x[::sampling_rate, :]
+
+        fx = fx[:,0,:]
+        fx = fx[101:,:]
+        fx = fx[::sampling_rate, :] 
+
+        positions_list.append(x)
+
+        forces_list.append(fx)
+        r_list.append(r)
+        n_list.append(n)
+
+        k+=1
+        # If 100 Simulations have been run save results and obtain  
+        if (i+1) % 100 == 0:
+            print("Saving Progress")
+            write_to_dataset(SAVE_LOC, forces_list, positions_list, r_list, n_list)
+
+            radii = []
+            n_list = []
+            positions = []
+            forces_list = []
+
+    # Save remaining lists.
+    if len(forces_list) >= 1:
+        write_to_dataset(SAVE_LOC, forces_list, positions_list, r_list, n_list)
+
+    print("All Simulations Complete")
+
 
 
 

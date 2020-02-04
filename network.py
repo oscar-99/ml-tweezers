@@ -143,7 +143,7 @@ class ResNetTS():
             pass
 
     
-    def build_regression_output(self, outs):
+    def build_regression_output(self, outs, weight_load=True):
         """
         Build a regression output layer.
 
@@ -152,13 +152,16 @@ class ResNetTS():
         outs : int
             Number of outputs of the regression. 1 for just radius or refractive index. 2 for both.
         """
-        out_layer = keras.layers.Dense(outs, name='reg')(self.gap_layer)
+        # Naming this layer is important as weights are loaded by name (all layers except final are the same between the classify and regression models.)
+        out_layer = keras.layers.Dense(outs, name='reg{}'.format(outs))(self.gap_layer)
+
+
 
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
 
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory, monitor='val_loss', save_best_only=True)
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory + "-best", monitor='loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
         adam = keras.optimizers.Adam()
@@ -168,11 +171,12 @@ class ResNetTS():
             self.model.summary()
 
         # By default load up weights of previously fitted model.
-        try: 
-            self.load_weights()
-            print("Previous Weights Loaded.")       
-        except OSError:
-            print("Previous Weights Not Loaded (Not found).")
+        if weight_load:
+            try: 
+                self.load_weights()
+                print("Default Previous Weights Loaded.")       
+            except OSError:
+                print("Default Previous Weights Not Loaded (Not found).")
 
 
     def fit(self, x_train, y_train, x_val, y_val, epochs):
@@ -186,6 +190,7 @@ class ResNetTS():
 
         self.duration = time.time() - start_time
         print("Model Fit Complete. {} epochs completed in {:.2f}".format(self.n_epoch, self.duration/60))
+        self.save_weights()
         self.save_logs()     
         
 
@@ -225,6 +230,7 @@ class ResNetTS():
             self.model.load_weights(self.directory, by_name=True)
         else:
             self.model.load_weights("models/" + location + ".h5", by_name=True)
+            print("Custom Weights Loaded")
         
 
     def save_weights(self):

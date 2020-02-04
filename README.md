@@ -1,6 +1,48 @@
 # Deep Learning For Classification of Particles in Optical Tweezers
+The ultimate goal of the project is to develop a neural network which can take force and position data from a particle trapped optical tweezers and predict the radius and refractive index of the particle. The project will involve simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models. Moving straight to solving the complete problem will be fairly complex and therefore the project will be split into 3 parts: 1. A simpler classification problem for the radius of the particle 2. A regression problem for the refractive index. 3. A complete regression for radius and refractive index incorporating both of previous parts.
 
-The ultimate goal of the project is to develop a neural network which can take force and position data from a particle trapped optical tweezers and predict the radius and refractive index of the particle. 
+# Part 1 - Classification of Radius
+
+## Classification Problem 
+
+
+The aim of this part is to use force and/or positions data to classify a particle into 5 or 10 classes of radius evenly spaced from 0.2 $\mu m$ to 1 $\mu m$. A time series approach will be taken for this problem, that is the time ordering of the positions and forces will be preserved
+
+The paper [1] compared several time series classification models on the UCR standard dataset. Based on the results from this paper the classification model will use a ResNet will be the basic model used 
+
+
+This problem will serve as a proof of concept as well as a base to build on for extending the model. The weights that are computed can be used for transfer learning a base for a regression problem or for a base for classification of refractive index.
+
+
+## The Data 
+A neural network which has been trained to predict the forces on a particle given its position, radius and refractive index was used to simulate a spherical particle in an optical trap to generate training data. The simulation uses a time step of 10e-4 and generates the forces and positions for 1100 steps, the first 100 steps being discarded due to these points corresponding to the particle falling into the trap (hence only data where the particle was settled in the trap was used). Therefore each time series is 1000 point long correponding to 0.1 seconds in the trap.
+
+## ResNet Model
+It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
+- Deep network that can avoid the vanishing gradient problem.
+- The best performance on the UCR Time Series Classifcation Dataset [1] among other leading time series classification architecture.
+- Highly transferable: can use trained weights as initialisation for regression model or for pretraining an experimentally generated dataset.
+- Can generate as much data as needed which suits a deep learning approach
+
+# Part 2 - Refractive Index Regression
+
+# Part 3 - Radius and Refractive Index Regression
+
+## The Data 
+
+Moving to two dimensions introduces a dimensionality problem to the data generation. For example, in a single dimension 10000 uniformly distributed points would cover a unit length with a density of 100 points per 0.01 step. In two dimensions 10000 uniformly distributed points would cover a unit square with only 1 point per 0.01 square. This presents several problem for the old data generation process:
+1. The low number of points per square means that less of the space of possible values will be available to the model.
+2. Variance in the uniform distribution process will mean some squares will have no points and others will have more than average further reducing the coverage of the space. 
+
+To solve these problems, several methods will be employed. 
+1. Cutting down the space of refractive index and radii values to n=(1.5, 1.7), r = (0.4, 0.6) from n = (1.4, 1.7), r = (0.2, 0.8). This will help cut down on the raw number of points necessary to cover the space. Once a functioning model has been trained this space of points can be increased with transfer learning and simulation.
+2. An increase in the raw number examples. 10000 points will be the baseline, number of points. From this baseline analysis of problematic points will allow targeted generation of training points over the problem spots. 
+3. A move away from a full uniform distribution. Instead
+
+
+
+
+
 
 ## The Data 
 A neural network which has been trained to predict the forces on a particle given its position, radius and refractive index was used to simulate a spherical particle in an optical trap to generate training data. The simulation uses a time step of 10e-4 and generates the forces and positions for 1100 steps, the first 100 steps being discarded due to these points corresponding to the particle falling into the trap (hence only data where the particle was settled in the trap was used). Therefore each time series is 1000 point long correponding to 0.1 seconds in the trap.
@@ -12,8 +54,7 @@ A neural network which has been trained to predict the forces on a particle give
 - Possibility of obtaining some experimentally generated data.
     - Pre training
 
-## Classification Problem 
-As a first step it will be attempted to classify time series of length 1000 into n (so far 5 and 10) classes of radii evenly spaced from 0.2 $\mu m$ to 1 $\mu m$. This problem will serve as a proof of concept as well as a base to build on for extending the model. The weights that are computed can be used as a base for a regression problem or for a base for classification of refractive index.
+
 
 ## Regression Problem
 Regression replaces the discrete classes from the classification problem with a continuously varying output space. This is a more general and realistic problem as on any practical application of the network there will not be the same set of 5 or 10 radii.
@@ -140,5 +181,17 @@ Images: regression_n_loss_accuracy, regression_n_accuracyvsn
 - To do:
   - Create heatmap/3d plots of std and correlations
   - Figure out combinations of valid values.
-  - Generate dataset
+  - Generate dataset iteratively
+  
   - Generate heatmap to diagnose 
+  - Read about multiple outputs
+  - Breakdown error by variable and by validation and testing.
+  
+
+## 5/2/2020
+- So far:
+  - Smarter method of simulating points, perhaps sampling within a non random grid to ensure there is enough coverage of parameter space or making less likely to generate a point close to other points.
+- - Some tools for visualising the data
+- To do:
+  - Smarter sampling of the training and testing sets?
+  - Iterative point generation needs to work with testing and training sets.
