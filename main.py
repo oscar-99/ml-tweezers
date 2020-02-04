@@ -29,15 +29,15 @@ t = 0.1
 sampling_rate = 1
 radius_range = (0.4,0.6)
 n_range = (1.5, 1.7)
-r_tiles = 20
-n_tiles = 20
+r_tiles = 2
+n_tiles = 2
 resolution = 2
 simulations = 1*r_tiles*n_tiles
 
 n_edges = np.linspace(n_range[0], n_range[1], n_tiles+1)
 r_edges = np.linspace(radius_range[0], radius_range[1], r_tiles+1)*1e-6
 
-# generate_2d_data('cont-data-nr-01-1', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles)
+generate_2d_data('test', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles)
 
 data_distribution_plot('cont-data-nr-01-1', n_edges, r_edges)
 

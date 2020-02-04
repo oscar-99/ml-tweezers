@@ -61,10 +61,20 @@ def ts_data_prep(split, axes, file, sample_size, target_vars, discrete=False):
 
     faxis = np.stack(forces, axis=2)
 
-    # Shuffle the targets and data using sklearn.utils
-    # faxis, targets = shuffle(faxis, targets)
-
     split_index = int(np.ceil(split*sample_size))
+    
+    print(faxis)
+    print(targets)
+    
+    # Shuffle the data and targets
+    np.random.seed(0)
+    rng_state = np.random.get_state()
+    np.random.shuffle(faxis)
+    np.random.set_state(rng_state)
+    np.random.shuffle(targets)
+
+    print(faxis)
+    print(targets)
     
     training_data = faxis[:split_index, :, :]
     testing_data = faxis[split_index:, :, :]

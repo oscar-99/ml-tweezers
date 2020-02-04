@@ -1,7 +1,7 @@
 # Deep Learning For Classification of Particles in Optical Tweezers
 The ultimate goal of the project is to develop a neural network which can take force and position data from a particle trapped optical tweezers and predict the radius and refractive index of the particle. The project will involve simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models. Moving straight to solving the complete problem will be fairly complex and therefore the project will be split into 3 parts: 1. A simpler classification problem for the radius of the particle 2. A regression problem for the refractive index. 3. A complete regression for radius and refractive index incorporating both of previous parts.
 
-# Part 1 - Classification of Radius
+# Part 1 - The Warmup: Classification of Radius adn Refractive Index Regression
 
 ## Classification Problem 
 
@@ -37,15 +37,25 @@ Moving to two dimensions introduces a dimensionality problem to the data generat
 To solve these problems, several methods will be employed. 
 1. Cutting down the space of refractive index and radii values to n=(1.5, 1.7), r = (0.4, 0.6) from n = (1.4, 1.7), r = (0.2, 0.8). This will help cut down on the raw number of points necessary to cover the space. Once a functioning model has been trained this space of points can be increased with transfer learning and simulation.
 2. An increase in the raw number examples. At least 10000 points will be the baseline, number of points. From this baseline analysis of problematic points will allow targeted generation of training points over the problem spots. 
-3. A move away from a full uniform distribution. Instead create a grid of tiles at a certain 'resolution' then sample points within the tiles. This will a certain resolution of uniform coverage. See image below for heatmap of distribution. See below for two plots of 12000 simulated points (10400 at 20 x 20 resolution, 1600 at 40 x 40). The first plot at a resolution of 20 x 20 and the second at 40 x 40.
+3. A move away from a full uniform distribution. Instead create a grid of tiles at a certain 'resolution' then sample points within the tiles. This will a certain resolution of uniform coverage. See image below for heatmap of distribution. See below for two plots of 12000 simulated points (10400 at 20 x 20 resolution, 1600 at 40 x 40). The first plot at a resolution of 20 x 20 and the second at 40 x 40. This new method implemented in the generate_2d_data function.
 
 ![Point Distribution 1](Figures/PointDistribution1.png)
 
 ![Point Distribution 2](Figures/PointDistribution2.png)
 
+ 
 
+## Data Leakage Problem
 
+- Basic idea of what data leakage is.
 
+A problem with the final method is data leakage. If the dataset is built up iteratively by increasing the sampling rate of specific problem areas then the distribution of the dataset is changing from iteration to iteration. This is a problem because in the existing code for the single variable problem the training and testing sets were simply obtained by splitting the dataset at some index (usually 90/10 training/testing). This naive method worked because samples in this case were drawn from one distribution (a uniform) and so randomization was done at the data generation stages. 
+
+If this same naive method is performed for the new data generation method then the training and testing sets will be from arbitrarily different distributions which is obviously problematic. A basic idea to solve this problem would be to shuffle the dataset before generating the training and testing splits for each iteration of training. However, if the weights are retained from a previous iteration this will result in examples from the previous training set ending up in the testing set. There are two possible solutions:
+1. Throwing out the weights each time the dataset is augmented. Requires the least changes to the existing codebase but seems very wasteful valuable training time.
+2. Building up the training and testing datasets at the same time but separately at the simulation stage. e.g. 10% of the runs of the simulation is siphoned off to build up the testing data. This requires a larger change to the codebase but will solve the iterative dataset problem (and possibly other data leaks) 
+
+Another data leakage problem was found 
 
 
 
@@ -181,3 +191,4 @@ Images: regression_n_loss_accuracy, regression_n_accuracyvsn
 - To do:
   - Smarter sampling of the training and testing sets?
   - Iterative point generation needs to work with testing and training sets.
+  - Fix data leakage

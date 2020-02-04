@@ -24,10 +24,10 @@ from diag import stat_values, position_plot, hist, history_plot_regression, hist
 
 
 # Parameters for training.
-train_test_ratio = 0.95
+train_test_ratio = 0.9
 axes = [0, 1, 2] # x, y and z axis
-sample_size = 10000
-epochs = 100
+sample_size = 12000
+epochs = 50
 
 
 # Process data.
@@ -36,10 +36,10 @@ training_data, training_labels, testing_data, testing_labels = ts_data_prep(trai
 
 # Build and train model
 input_shape = training_data.shape[1:] # Time series length
-model = ResNetTS(input_shape, "resnet3-nr-regression-xyz")
+model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-2")
 model.build_regression_output(2) # output is n, r
-# model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
-# model.evaluate_regression(testing_data, testing_labels)
+model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
+model.evaluate_regression(testing_data, testing_labels)
 print(model.predict(testing_data[:1,:,:]))
 print(testing_labels[0])
 
