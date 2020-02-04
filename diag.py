@@ -399,7 +399,7 @@ def error_plot_2d(model, data, labels):
 
 
 
-def data_distribution_plot(file, n_tiles, r_tiles, bins):
+def data_distribution_plot(file, n_tiles, r_tiles):
     '''
     Plot the distribution of the simulated data.
 
@@ -426,7 +426,7 @@ def data_distribution_plot(file, n_tiles, r_tiles, bins):
 
     else:
         # hist2d expects (m,) shape
-        h, xedges, yedges,_ = plt.hist2d(n[:,0], r[:,0], bins=bins)
+        plt.hist2d(n[:,0], r[:,0], bins=[n_tiles, r_tiles], cmap='plasma')
         plt.xlabel("Refractive Index")
         plt.ylabel("Radius (metres)")
         cbar = plt.colorbar()

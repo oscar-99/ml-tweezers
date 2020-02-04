@@ -36,23 +36,16 @@ Moving to two dimensions introduces a dimensionality problem to the data generat
 
 To solve these problems, several methods will be employed. 
 1. Cutting down the space of refractive index and radii values to n=(1.5, 1.7), r = (0.4, 0.6) from n = (1.4, 1.7), r = (0.2, 0.8). This will help cut down on the raw number of points necessary to cover the space. Once a functioning model has been trained this space of points can be increased with transfer learning and simulation.
-2. An increase in the raw number examples. 10000 points will be the baseline, number of points. From this baseline analysis of problematic points will allow targeted generation of training points over the problem spots. 
-3. A move away from a full uniform distribution. Instead
+2. An increase in the raw number examples. At least 10000 points will be the baseline, number of points. From this baseline analysis of problematic points will allow targeted generation of training points over the problem spots. 
+3. A move away from a full uniform distribution. Instead create a grid of tiles at a certain 'resolution' then sample points within the tiles. This will a certain resolution of uniform coverage. See image below for heatmap of distribution. See below for two plots of 12000 simulated points (10400 at 20 x 20 resolution, 1600 at 40 x 40). The first plot at a resolution of 20 x 20 and the second at 40 x 40.
+
+![Point Distribution 1](Figures/PointDistribution1.png)
+
+![Point Distribution 2](Figures/PointDistribution2.png)
 
 
 
 
-
-
-## The Data 
-A neural network which has been trained to predict the forces on a particle given its position, radius and refractive index was used to simulate a spherical particle in an optical trap to generate training data. The simulation uses a time step of 10e-4 and generates the forces and positions for 1100 steps, the first 100 steps being discarded due to these points corresponding to the particle falling into the trap (hence only data where the particle was settled in the trap was used). Therefore each time series is 1000 point long correponding to 0.1 seconds in the trap.
-
-- Time series simulation and length 
-    - Longer time series 
-    - Information caputed
-
-- Possibility of obtaining some experimentally generated data.
-    - Pre training
 
 
 
@@ -73,13 +66,6 @@ The network was trained on a GPU which significantly sped up the process a
 
 
 # Radii and Refractive Index Prediction
-
-## Data - Moving from One Variable to Two
-When testing each of the variables on their own it was found that radii from 0.2 to 1 microns produced regular trapping behaviour for a refractive index of 1.59 while refractive indices from 1.4 to 1.75 produced regular trapping behaviour with a radius 0.6 microns. 
-
-This will serve as the basis for values selected while simulating data which varies in both variables. From
-
-
 
 
 

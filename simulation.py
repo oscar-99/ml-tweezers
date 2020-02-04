@@ -254,16 +254,37 @@ def create_dataset(save_loc, t_length):
         file.create_dataset("n", shape=(0,1), maxshape=(None,1))
 
 
-def generate_2d_data(file, t, simulations, sampling_rate, radii_range, n_range,r_tiles, n_tiles, verbose=True):
+def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_tiles, n_tiles, verbose=True):
     """
     A function which improves upon the generate dataset function for the 2d case. The function will generate a n_tiles x r_tiles grid from which tiles will be selected and used as the bounds of the uniform distribution. 
     This will ensure a more even coverage down to a certain resolution.
     
     Should be able to handle n_tiles, r_tiles >=1.
+
+    Parameters:
+    ----------
+    file : str
+        File name where generated data will be saved.
+    t : float
+        Time to run each simulation for.
+    simulations : int
+        Number of times to run the simulation. Should be a multiple of n_tiles*r_tiles
+    sampling_rate : int
+        The rate at which points are to be sampled from the simulated data. e.g with sampling rate of 10, 1 in 10 points will be saved.
+    r_range : (float, float)
+        Tuple of the range of radii in microns. 
+    n_range : (float, float)
+        Tuple of the range of the refractive index values.
+    r_tiles : int
+        The number of tiles for the range of radii.
+    n_tiles : int
+        The number of tiles for the range of refractive indices.
+    verbose : bool
+        Verbose output.
     """
     # Generate vectors of boundaries.
     n = np.linspace(n_range[0], n_range[1], n_tiles+1)
-    r = np.linspace(radii_range[0], radii_range[1], r_tiles+1)
+    r = np.linspace(r_range[0], r_range[1], r_tiles+1)
 
     # Indices and counter.
     j = 0
