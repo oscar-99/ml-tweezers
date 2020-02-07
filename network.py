@@ -44,6 +44,7 @@ class ResNetTS():
         self.input_shape = input_shape
         
         self.directory = os.path.join("models", self.name + ".h5")
+        self.check_loc = os.path.join("models", self.name + "-best" + ".h5")
         self.duration = None
 
         # Hyper parameters
@@ -156,12 +157,12 @@ class ResNetTS():
         out_layer = keras.layers.Dense(outs, name='reg{}'.format(outs))(self.gap_layer)
 
 
-
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
 
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.directory + "-best", monitor='loss', save_best_only=True)
+        os.path.join("models", self.name + ".h5")
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.check_loc, monitor='loss', save_best_only=True)
 
         self.callbacks = [reduce_learning_rate, model_checkpoint]
         adam = keras.optimizers.Adam()

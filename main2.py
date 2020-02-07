@@ -16,7 +16,7 @@ import seaborn as sns
 
 import keras
 
-from utilities import loadup, store, ts_data_prep, remove_from_file
+from utilities import loadup, store, ts_data_prep, remove_from_file, ts_2d_data_prep
 from network import ResNetTS
 from simulation import simulate, generate_data, force_comp
 from diag import stat_values, position_plot, hist, history_plot_regression, history_plot_classify, regression_error_plot, data_distribution_plot, error_plot_2d
@@ -24,26 +24,25 @@ from diag import stat_values, position_plot, hist, history_plot_regression, hist
 
 
 # Parameters for training.
-train_test_ratio = 0.9
 axes = [0, 1, 2] # x, y and z axis
-sample_size = 12000
-epochs = 50
+sample_size = 15000
+epochs = 100
 
 
 # Process data.
-training_data, training_labels, testing_data, testing_labels = ts_data_prep(train_test_ratio, axes, 'cont-data-nr-01-1', sample_size, ['n', 'r'], discrete=False)
-
+training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 13500)
+testing_data, testing_labels = ts_2d_data_prep('cont-data-nr-01-1-test', axes, 1500)
 
 # Build and train model
 input_shape = training_data.shape[1:] # Time series length
 model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-2")
 model.build_regression_output(2) # output is n, r
-model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
+# model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
 model.evaluate_regression(testing_data, testing_labels)
-print(model.predict(testing_data[:1,:,:]))
-print(testing_labels[0])
 
+tiles = 20
 # Diagnostics
-error_plot_2d(model, training_data, training_labels)
+error_plot_2d(model, testing_data, testing_labels, tiles, tiles)
+error_plot_2d(model, training_data, training_labels, tiles, tiles)
 history_plot_regression(model)
 

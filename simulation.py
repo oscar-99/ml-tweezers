@@ -254,12 +254,12 @@ def create_dataset(save_loc, t_length):
         file.create_dataset("n", shape=(0,1), maxshape=(None,1))
 
 
-def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_tiles, n_tiles, verbose=True):
+def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_tiles, n_tiles, train_test_split,  verbose=True):
     """
-    A function which improves upon the generate dataset function for the 2d case. The function will generate a n_tiles x r_tiles grid from which tiles will be selected and used as the bounds of the uniform distribution. 
-    This will ensure a more even coverage down to a certain resolution.
-    
-    Should be able to handle n_tiles, r_tiles >=1.
+    A function which improves upon the generate dataset function for the 2d case. The function will generate a n_tiles x r_tiles grid from which tiles will be selected at random and without replacement and used as the bounds of the uniform distribution. 
+
+    The aim is to ensure a more even coverage down to a certain resolution.
+    Should be able to handle n_tiles, r_tiles >=1. 
 
     Parameters:
     ----------
@@ -279,6 +279,8 @@ def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_til
         The number of tiles for the range of radii.
     n_tiles : int
         The number of tiles for the range of refractive indices.
+    train_test_split : float
+        The training test split for the generated data.
     verbose : bool
         Verbose output.
     """
@@ -291,40 +293,49 @@ def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_til
     i = 0
     k = 0
 
-    # Initialize list of n and r values.
-    n_r_list = []
-
-    # Generate refractive indices and radii 
+    index_list = []
+    # Generate indices of the box.
     if verbose:
         print('Generate refractive indices and radii.')
 
-    while k < simulations:
-        n_val = np.random.uniform(n[i], n[i+1])
-        r_val = (1e-6)*np.random.uniform(r[j], r[j+1])
-        n_r_list.append((n_val, r_val))
-
+    while k < n_tiles*r_tiles:
+        index_list.append((i,j))
         # If at end of row. 
-        if i + 1 == (n_tiles):
-            # If at end of column.
-            if j + 1 == (r_tiles):
-                # Reset.
-                i = 0
-                j = 0
-            # Otherwise move down a column. 
-            else:    
-                i = 0
-                j += 1 
+        if i + 1 == (n_tiles):   
+            i = 0
+            j += 1 
         # Otherwise move along the row
         else:
             i +=1 
-
         k += 1
-    
+
+
+    # Now use index list to generate n and r.
+    # Initialize list of n and r values and a counter
+    n_r_list = []
+    m = 0 
+    while m < simulations:
+        # Number of samples
+        if m + len(index_list) > simulations:
+            samples = simulations - m
+        else:
+            samples = len(index_list)
+
+        # Sample from the index list to generate randomized indices.
+        sampled_indices = random.sample(index_list, samples)
+        m += samples
+
+        # Loop through the randomized indices. 
+        for i, j in sampled_indices:
+            n_val = np.random.uniform(n[i], n[i+1])
+            r_val = (1e-6)*np.random.uniform(r[j], r[j+1])
+            n_r_list.append((n_val, r_val))
+
     # Shuffle the index and radius array.
     random.shuffle(n_r_list)
+    
     if verbose:
         print('Refractive indices and radii generation complete.')
-
 
     if verbose:
         print("Beginning Simulation.")
@@ -342,11 +353,14 @@ def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_til
     MODEL_FILE_5DOF = "simulation_model/nn5dof_size_256.h5"
     nn = load_model(MODEL_FILE_5DOF)
     
-    SAVE_LOC = "data/" + file + ".h5"
+    # Create a train and a test dataset.
+    train_save = "data/" + file + "-train" + ".h5"
+    test_save = "data/" + file + "-test" ".h5"
 
-    # If the path does not exist, create it otherwise only create it if append
-    if not os.path.exists(SAVE_LOC):
-        create_dataset(SAVE_LOC, t_length)
+    # If the dataset does not exist, create it.
+    if not os.path.exists(train_save):
+        create_dataset(train_save, t_length)
+        create_dataset(test_save, t_length)
         
     # Initialise value lists
     n_list = []
@@ -381,7 +395,14 @@ def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_til
         # If 100 Simulations have been run save results and obtain  
         if (i+1) % 100 == 0:
             print("Saving Progress")
-            write_to_dataset(SAVE_LOC, forces_list, positions_list, r_list, n_list)
+            # index at which to split into training and testing.
+            split_index = int(len(r_list)*train_test_split)
+
+            # Write training and testing data.
+            write_to_dataset(test_save, forces_list[:split_index], positions_list[:split_index], r_list[:split_index], n_list[:split_index])
+
+            write_to_dataset(train_save, forces_list[split_index:], positions_list[split_index:], r_list[split_index:], n_list[split_index:])
+
 
             radii = []
             n_list = []
@@ -390,10 +411,16 @@ def generate_2d_data(file, t, simulations, sampling_rate, r_range, n_range,r_til
 
     # Save remaining lists.
     if len(forces_list) >= 1:
-        write_to_dataset(SAVE_LOC, forces_list, positions_list, r_list, n_list)
+        # index at which to split into training and testing.
+        split_index = int(len(r_list)*train_test_split)
+
+        # Write training and testing data
+        write_to_dataset(test_save, forces_list[:split_index], positions_list[:split_index], r_list[:split_index], n_list[:split_index])
+
+        write_to_dataset(train_save, forces_list[split_index:], positions_list[split_index:], r_list[split_index:], n_list[split_index:])
 
     print("All Simulations Complete")
-
+    
 
 
 

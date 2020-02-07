@@ -360,7 +360,7 @@ def classify_error_plot(model, testing_data, testing_label):
     plt.title("Test Prediction Breakdown")
 
 
-def error_plot_2d(model, data, labels):
+def error_plot_2d(model, data, labels, x_tiles, y_tiles):
     '''
     A function to visualize the error for 2d regression.
 
@@ -373,30 +373,41 @@ def error_plot_2d(model, data, labels):
     labels : np.array
         The labels for the data.
     '''
-
     y = model.predict(data)
     dy = y - labels
-    print(dy)
     n_error = dy[:, 0]
     r_error = dy[:, 1]
 
     n = labels[:, 0]
     r = labels[:, 1]
 
-    n_error_pct = 100*n_error / n
-    n_bins = binned_statistic_2d(n, r, n_error_pct, statistic='mean', bins=[30, 20])
+    n_error_pct = 100*n_error / n 
+    r_error_pct = 100*r_error / r
+    
+    n_bins = binned_statistic_2d(n, r, n_error_pct, statistic='mean', bins=[x_tiles, y_tiles])
+
+    r_bins = binned_statistic_2d(n, r, r_error_pct, statistic='mean', bins=[x_tiles, y_tiles])
 
     x_labels = ['{:.2f}'.format(x) for x in n_bins.x_edge]
     y_labels = ['{:.2f}'.format(y) for y in n_bins.y_edge]
 
-    x_labels = x_labels[::3]
-    y_labels = y_labels[::2]
+    bounding_box = [float(x_labels[0]) , float(x_labels[-1]), float(y_labels[0]), float(y_labels[-1])]
 
-    print(len(x_labels))
-    ax = sns.heatmap(n_bins.statistic, xticklabels=x_labels, yticklabels=y_labels)
+    plt.subplot(1, 2, 1)
+    plt.title("Percentage Error in Refractive Index.")
+    plt.imshow(n_bins.statistic, cmap='viridis', origin='lower', extent=bounding_box)
+    plt.xlabel('Refractive Index')
+    plt.ylabel("Radius")
+    plt.colorbar()
+
+    plt.subplot(1, 2, 2)
+    plt.title("Percentage Error in Radius.")
+    plt.imshow(r_bins.statistic, cmap='plasma', origin='lower', extent=bounding_box)
+    plt.xlabel('Refractive Index')
+    plt.ylabel("Radius")
+    plt.colorbar()
 
     plt.show()
-
 
 
 def data_distribution_plot(file, n_tiles, r_tiles):

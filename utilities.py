@@ -5,6 +5,62 @@ import pandas as pd
 from keras.utils import to_categorical
 from sklearn.utils import shuffle
 
+def ts_2d_data_prep(file, axes, sample_size):
+    """
+    Function specialized for prepping the 2d data. Expects to handle the .h5 files output by generate_2d_data function, that is separate storage for training and testing sets.
+
+    Parameters:
+    -----------
+    file : str
+        The file where the data is located.
+    axes : list<int>
+        0 - x axis, 1 - y axis, 2 - z axis.
+    sample_size : int
+        The number of simulated time series to train on.
+
+    Returns:
+    --------
+    data : np.array
+        The data.   
+    labels : np.array
+        The labels corresponding to the data.
+    """
+
+    # Load up data.
+    f = loadup(file, "force")
+    n = loadup(file, 'n')
+    r = loadup(file, 'radii')*1e6
+
+    # Generate targets.    
+    targets = np.stack((n, r), axis=1)
+    targets = np.reshape(targets, (targets.shape[0], targets.shape[1]))
+
+    forces = []
+
+    # Process the force axes individually then stack them.
+    for axis in axes:
+        faxis = f[:sample_size, :, axis]
+
+        # 'z' Normalise forces 
+        fmean = np.mean(faxis, axis=1).reshape(sample_size, 1)
+        fstd = np.std(faxis, axis=1).reshape(sample_size, 1)
+        faxis = (faxis - fmean)/fstd
+        forces.append(faxis)
+
+    faxis = np.stack(forces, axis=2)
+    faxis = faxis[:sample_size, :, :]
+    targets = targets[:sample_size, :]
+
+    # Shuffle the data and the targets.
+    np.random.seed(0)
+    rng_state = np.random.get_state()
+    np.random.shuffle(faxis)
+    np.random.set_state(rng_state)
+    np.random.shuffle(targets)
+
+    return faxis, targets
+
+
 
 def ts_data_prep(split, axes, file, sample_size, target_vars, discrete=False):
     """
@@ -62,7 +118,7 @@ def ts_data_prep(split, axes, file, sample_size, target_vars, discrete=False):
     faxis = np.stack(forces, axis=2)
 
     split_index = int(np.ceil(split*sample_size))
-    
+
     print(faxis)
     print(targets)
     
