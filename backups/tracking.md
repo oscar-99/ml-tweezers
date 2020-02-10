@@ -1,3 +1,6 @@
-- cont-data-nr-01-1-15000: 
+- cont-data-nr-01-1-old: 
+  - Accidentally used a fixed radius to compute gamma. Need to discard 
   - r = (0.4,0.6), n = (1.5, 1.7), 10000 at 40x40 
   - r = (0.4,0.6), n = (1.5, 1.7), 5000 at 20 x 20
+- cont-data-nr-01-1-15000:
+  - r = (0.4,0.6), n = (1.5, 1.7), 15000 at 40x40

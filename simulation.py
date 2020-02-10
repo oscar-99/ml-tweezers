@@ -1,37 +1,17 @@
 import numpy as np
 import h5py
 from keras.models import load_model
-from scipy.constants import c
+import os
 import random
 
-# Runs simulation using the 5 dof neural network
-
-import os
-# Fixes issue with matplotlib 3d plotting on my mac
-# os.environ['KMP_DUPLICATE_LIB_OK']='True
-
-# Fixes problem with numpy dlls on windows (for my pc)
-# os.environ['PATH']
-
-# Particle Properties
-n_part = 1.59 # range: 1.33 - 2.0
-radius = 1.0e-6 # [m] range: 0.1 to 1 microns
-
-
-# Setup Properties
+# Fixed parameters.
+temperature = 300 # [K]
 wavelength = 1064e-9 # [m]
 power = 0.02 #[W]
 kb = 1.38064852e-23
 eta = 0.001 #[Ns/m^2]
-gamma = 6*np.pi*eta*radius # Drag for sphere
-temperature = 300 # [K]
-
-
-# Initial conditions
-x0 = np.array([[0, 0, 0]])
-v0 = np.zeros((1,3))
-f0 = np.zeros((1,3))
-
+n_medium = 1.33
+from scipy.constants import c
 
 def simulate(r, n, dt, t, net, verbose):
     """
@@ -39,7 +19,7 @@ def simulate(r, n, dt, t, net, verbose):
     
     Parameters:
     -----------
-    rs : float
+    r : float
         Radius of particle in metres.
     n : float 
         Refractive index.
@@ -56,11 +36,13 @@ def simulate(r, n, dt, t, net, verbose):
     -------
         Tuple of position and forces.
     """
-
-    x = [x0]
-    fx = [f0]
+    # Setup Properties
+    gamma = 6*np.pi*eta*r # Drag for sphere
+    
+    x = [np.zeros((1,3))]
+    fx = [np.zeros((1,3))]
     nsteps = int(np.ceil(t/dt)) 
-    completion_stages = [0.50, 1]
+    completion_stages = [1]
 
     for k in range(nsteps):
         x1 = x[k]

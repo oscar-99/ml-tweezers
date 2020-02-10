@@ -2,7 +2,12 @@
 
 
 ## Intro
-The ultimate goal of the project was to develop a neural network which can take force and position data from a particle trapped optical tweezers and predict the radius and refractive index of the particle. The problem is interesting because efficient computational methods exist (both conventional and machine learning based) that take in position, radius and refractive index and generate the forces on a particle accurately. This means it is possible to accurately simulate a trapped particle with a given refractive index and radius. No such efficient methods exist for the inverse problem, - that is taking in the 'behavior' of the trapped particle (e.g. in the form of forces and positions) to predict both the radius and refractive index. An efficient means to estimate the radius or refractive index of a given trapped particle could be of a lot of value to optical tweezers researchers. For example, by allowing fast categorization of unknown particles.
+
+- Optical Tweezers.
+
+The ultimate goal of the project was to develop a neural network which can take force and position data from a trapped and predict the radius and refractive index of the particle. The project is building off previous work by the supervisor (Isaac Lenton) in which a 5 degree of freedom fully connected neural network used $(x,y,z)$ position, radius and refractive index to predict the forces on a spherical particle. This network allows simulation of the motion of the particle much faster than that of analytical methods.
+
+An efficient means to estimate the radius or refractive index of a given trapped particle could be of a lot of value to optical tweezers researchers. For example, by allowing fast categorization of unknown particles or by allowing measurement of the properties of  difficult to measure particles just by their motion.
 
  The project involved simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models.
 
@@ -12,7 +17,15 @@ The ultimate goal of the project was to develop a neural network which can take 
 - Description of the times series approach.
 
 ### The Time Series Approach
-In attempting to solve the inverse problem it was clear that more would be needed than unordered force data. It seemed apparent that any model for the data would need 'context' in order for there to be enough information. For example, a neural network that took in the force measured on a given axis would also need the position on that axis to 'orient' the model. It is hoped that for any given  
+
+
+In attempting to predict the properties of the particle I thought it would be valuable to capture the dynamics of the particle behavior in the data being fed to the model. A natural way of encoding the extra dynamic information into the data is preserve the time ordering of data. That is, instead of feeding the model a list of unordered values or histograms and other statistical summaries of the the data, a whole time series of values could be used for each radius and refractive index. This would allow the model to observe how different radius and refractive index values affect the behaviour of the particle dynamically over time rather than just at a point. I have also had some experience working with time series data and thought it could be a good way to differentiate my project from previous work and the work of other group members.
+
+For practical reasons (with the current experimental setup force data can be captured at a far higher rate than position data) I decided to focus on using just force data in the x, y and z axes.
+
+Another advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are very new and are based on recent breakthroughs in image classification. Image classification is surprisingl
+
+
 
 - Sampling of position vs. force
 - Ax
@@ -20,6 +33,8 @@ In attempting to solve the inverse problem it was clear that more would be neede
 
 
 ### ResNet Model
+
+The
 It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
 - Deep network that can avoid the vanishing gradient problem.
 - The best performance on the UCR Time Series Classifcation Dataset [1] among other leading time series classification architecture.
@@ -33,7 +48,18 @@ It was decided from a review of time series classification literature (in partic
 
 ### Simulation 
 
+To generate enough training data a simulation method was used rather than physically measuring data from trapped particles. The data was simulated using the previously mentioned 5 degree of freedom (5-DOF) fully connected neural network which takes in $(x,y,z)$ position, radius and refractive index and outputs forces. This network had been trained on a range of radii from ~0.1-1 micron and a range of refractive indices ~1.4-2. 
+
+The simulation worked by computing the positions and forces of the particle in discrete time steps. The particle was initialized at the origin and 
+at each time step the $(x,y,z)$ position of the particle was inputted into the 5-DOF network which outputted the value of the deterministic forces due to the trap in each direction $(f_x, f_y, f_z)$. The particles are sufficiently small that a brownian motion term from thermal agitation also had to be added to the deterministic forces. Following [2], these forces are used to compute the new position of the particle.
+
+Once the simulation of the motion of the particle was complete the positions were plotted to ensure that the expected trapping behaviour was occurring (radii and refractive indices that were too close to the boundary of the range of values the 5-DOF network was trained on did not trap properly) and it was found that a time step of $10^{-4}$ was sufficiently small to observe the expected trapping behaviour without excessively small steps. It was also noticed in these plots that the trap centre was not always located at the origin and hence the first 50 or so time steps were made up of the particle 'falling' into the trap. For this reason it was decided that first hundred points of each simulation would be removed to ensure only 'regular' trapped behaviour would be included.
+
+The simulation for each particle was run for 0.1 seconds which, with a time step of $10^{-4}$, meant 1000 points in the time series for each axis. The simulation could have be run for longer to include more of the 'tail end' particle behaviour at the cost of having more points in each time series and increasing simulation time per particle. The amount of points in each time series can be reduced by sampling only a portion of the points generated e.g. run a 1 second simulation generating 10000 points and sample 1 point in 10 for a total of 1000 points at the cost of missing perhaps finer behaviour of the particle (how much this matters depends on how strong noise is compared to deterministic behaviour). This method was attempted but it was found that there was very little benefit to accuracy for a large increase in simulation times. It was thought that it would be better, especially when changing both radius and refractive index to have a larger amount of particles simulated for a shorter amount of time.
+
 ### Single Variable Data
+
+The
 
 - Data generation method and processing.
 - Description of earlier methods and difference.
@@ -74,6 +100,8 @@ These problems were fixed by a new implementation of the data generation and pro
 
 ## Discussion
 - Where to go from here.
+  - Experimental data
+  - Longer simulations.
 
 
 # Part 1 - The Warmup: Classification of Radius adn Refractive Index Regression
@@ -140,6 +168,7 @@ The network was trained on a GPU which significantly sped up the process a
 
 # References
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
+2. Simulation of a Brownian particle in an optical trap (2013): https://aapt-scitation-org.ezproxy.library.uq.edu.au/doi/full/10.1119/1.4772632
 
 # Storage Documentation
 ## Data
@@ -236,3 +265,9 @@ Images: regression_n_loss_accuracy, regression_n_accuracyvsn
   - Smarter sampling of the training and testing sets?
   - Iterative point generation needs to work with testing and training sets.
   - Fix data leakage by rewriting the data generation and processing functions.
+
+## 12/2/2020
+- So far:
+  - Fixed data leak and completely reworked simulation and processing.
+  - Fixed incorrect computation of gamma where hardcoded 'radius' was used instead of 'r' variable. 
+  - Generated new 15000 point dataset and began training new network after mistakes were fixed.

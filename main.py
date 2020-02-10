@@ -28,20 +28,22 @@ t = 0.1
 sampling_rate = 1
 radius_range = (0.4,0.6)
 n_range = (1.5, 1.7)
-r_tiles = 20
-n_tiles = 20
+r_tiles = 40
+n_tiles = 40
 resolution = 2
-simulations = 1000
-train_test_split= 0.1
+simulations = 5000
+train_test_split= 1
 
 n_edges = np.linspace(n_range[0], n_range[1], n_tiles+1)
 r_edges = np.linspace(radius_range[0], radius_range[1], r_tiles+1)*1e-6
 
 
 
-generate_2d_data('cont-data-nr-01-1', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles, train_test_split)
+#generate_2d_data('validation', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles, train_test_split)
 
 # this dataset has 10000 at 40x40 and 4000 at 20 x 20
+
+# data_distribution_plot('validation-train', n_edges, r_edges)
 data_distribution_plot('cont-data-nr-01-1-train', n_edges, r_edges)
 data_distribution_plot('cont-data-nr-01-1-test', n_edges, r_edges)
 

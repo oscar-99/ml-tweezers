@@ -31,7 +31,8 @@ epochs = 100
 
 # Process data.
 training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 13500)
-testing_data, testing_labels = ts_2d_data_prep('cont-data-nr-01-1-test', axes, 1500)
+testing_data, testing_labels = ts_2d_data_prep('validation-test', axes, 10000)
+
 
 # Build and train model
 input_shape = training_data.shape[1:] # Time series length
