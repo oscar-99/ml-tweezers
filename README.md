@@ -27,6 +27,7 @@ An efficient means to estimate the radius or refractive index of a given trapped
 
 - A description of the model.
 - Description of the times series approach.
+- Knowledge of basic neural network terminolgy and theory is necessary for this section.
 
 ### The Time Series Approach
 
@@ -46,16 +47,20 @@ For practical reasons (with the current experimental setup force data can be cap
 ### ResNet Model
 An advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are based on recent breakthroughs in image classification. In image classification/regression problems the model is trained to analyse images to categorize them into classes (for example the type of animal in a picture), in the case of classification or into a single or multiple continuous outputs (for example predicting a house price from an image), as in the case of regression. Image classification/regression is a surprisingly similar problem to time series classification/regression as fundamentally an image (at least a grey scale image), to a computer, is a two dimensional (matrix) collection of ordered values whereas a time series is simple a one dimensional collection of ordered values. This similarity between the two problems means that a lot of the techniques for image classification/regression carry over to time series classification/regression. 
 
-A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around the operation of convolution, whereby a multiple small square filter (3x3 for example) are 'slid' along the image (matrix) computing the dot product at each stage and outputting that value to a new matrix. 
+A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around convolution layers, whereby a square of weighted values (5x5 for 25 total weights for example) called a filter or kernel is 'slid' along the image (recall, just a matrix) computing the dot product at each stage between the weights of the filter and the values of the image passed over by the filter and outputting that value to a new matrix. There can be multiple such filters and hence multiple output matrices for a given input matrix.
 
+![Convolution](/Figures/convolution.gif)
 
-![Convolution](/Figures/no_padding_strides.gif)
+(image from https://github.com/vdumoulin/conv_arithmetic)
 
+The values actually trained by the neural network for convolution layers are the filter weights and these same filter weights are applied everywhere along an image we can think of the network training the filters to activate when distinguishing features are present regardless of their location in the image. An example is training a network to classify images into either being of dogs or zebras. We can think of our model using certain filters to activate, for example, when they detect stripes, paws or floppy ears as these are distinguishing features, regardless of where they are located in the image. Convolutional neural networks are far more parsimonious, in that, so long as it doesn't matter so much where the distinguishing features are located as they can utilise information in every area of the image. Something like a fully connected neural network which has no sense of the space of the image and which tries to learn the image features in each location from scratch will require far more parameters to achieve the same results.
+
+(for reference and more reading on convolutional neural networks see [3])
 
 It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
 - Deep network that can avoid the vanishing gradient problem.
 - The best performance on the UCR Time Series Classifcation Dataset [1] among other leading time series classification architecture.
-- Highly transferable: can use trained weights as initialisation for regression model or for pretraining an experimentally generated dataset.
+- Highly transferable: can use trained weights as initialization for regression model or for pretraining an experimentally generated dataset.
 - Can generate as much data as needed which suits a deep learning approach
 
 
@@ -169,6 +174,8 @@ Ran a 500 epoch train and saw significant overfitting. Double the number of poin
 # References
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
 2. Simulation of a Brownian particle in an optical trap (2013): https://aapt-scitation-org.ezproxy.library.uq.edu.au/doi/full/10.1119/1.4772632
+3. https://cs231n.github.io/convolutional-networks/
+   
 
 # Storage Documentation
 ## Data
