@@ -49,7 +49,7 @@ An advantage of taking a time series approach is that allows utilization of some
 A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around the operation of convolution, whereby a multiple small square filter (3x3 for example) are 'slid' along the image (matrix) computing the dot product at each stage and outputting that value to a new matrix. 
 
 
-![Convolution](/figures/no_padding_strides.gif)
+![Convolution](/Figures/no_padding_strides.gif)
 
 
 It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
