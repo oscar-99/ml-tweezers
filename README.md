@@ -1,7 +1,19 @@
 # Deep Regression for Properties of Particles in Optical Tweezers
 
 
-## Intro
+## What I learned
+
+I have learnt an immense amount over the course of the project both practically and in 'soft skills' such as:
+- Spending dedicated time everyday working on a fairly opened and self directed ended project has taught me a lot about being resourceful. Often I would be completely lost on how to proceed and spent hours searching for a starting place. The volume of new machine learning papers is very high so I found that having a flow from high level summary at stack exchange and other forum posts as well as direction from the supervisor very important to obtain direction and find specific papers and articles that were critical reading. 
+- I learned a lot about practical implementation of keras models, proper data generation, processing and storage techniques and choosing hyperparameters.  
+- I learnt a lot about how to design a good workflow for modelling. Specifically, I found out how important it is to have a good idea of the *data generation -> data processing -> model training -> model output and analysis* pipeline before beginning the implementation. A lot of time on my project was spent recoding old systems that I had thrown together without knowing exactly where I was heading. If I had a good idea of my objectives and how I planned to implement from the start then I think I could have saved a lot time rewriting this code.
+- Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off of and get feedback. The supervisor was very important for giving direction and narrowing down which avenues were most important to pursue. 
+- Explaining the project at a variety of people at different knowledge levels (supervisors, group members, family and friends) helped me better understand how to communicate scientific/technical concepts.
+
+
+The project involved simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models.
+
+## Introduction to the problem
 
 - Optical Tweezers.
 
@@ -9,7 +21,7 @@ The ultimate goal of the project was to develop a neural network which can take 
 
 An efficient means to estimate the radius or refractive index of a given trapped particle could be of a lot of value to optical tweezers researchers. For example, by allowing fast categorization of unknown particles or by allowing measurement of the properties of  difficult to measure particles just by their motion.
 
- The project involved simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models.
+
 
 ## Method 
 
@@ -23,7 +35,6 @@ In attempting to predict the properties of the particle I thought it would be va
 
 For practical reasons (with the current experimental setup force data can be captured at a far higher rate than position data) I decided to focus on using just force data in the x, y and z axes.
 
-Another advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are very new and are based on recent breakthroughs in image classification. Image classification is surprisingl
 
 
 
@@ -33,14 +44,23 @@ Another advantage of taking a time series approach is that allows utilization of
 
 
 ### ResNet Model
+An advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are based on recent breakthroughs in image classification. In image classification/regression problems the model is trained to analyse images to categorize them into classes (for example the type of animal in a picture), in the case of classification or into a single or multiple continuous outputs (for example predicting a house price from an image), as in the case of regression. Image classification/regression is a surprisingly similar problem to time series classification/regression as fundamentally an image (at least a grey scale image), to a computer, is a two dimensional (matrix) collection of ordered values whereas a time series is simple a one dimensional collection of ordered values. This similarity between the two problems means that a lot of the techniques for image classification/regression carry over to time series classification/regression. 
 
-The
+A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around the operation of convolution, whereby a multiple small square filter (3x3 for example) are 'slid' along the image (matrix) computing the dot product at each stage and outputting that value to a new matrix
+
+
+![Convolution](figures/no_padding_strides.gif)
+
+
 It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
 - Deep network that can avoid the vanishing gradient problem.
 - The best performance on the UCR Time Series Classifcation Dataset [1] among other leading time series classification architecture.
 - Highly transferable: can use trained weights as initialisation for regression model or for pretraining an experimentally generated dataset.
 - Can generate as much data as needed which suits a deep learning approach
 
+
+### Performance
+The network was trained on a GPU which significantly sped up the process a
 
 
 ## Data
@@ -98,38 +118,30 @@ These problems were fixed by a new implementation of the data generation and pro
 - Description of the results.
   - Error plots etc.
 
+To help with 
+
+The model was trained for 100 epochs on 15000 points distributed in a 40 by 40 grid (see data section for details) covering the whole dataset. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
+
+![Validation 100 Epochs](Figures/ErrorPlotValidation100E.png)
+
+The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively. 
+
+So on so on
+
+
+Ran a 500 epoch train and saw significant overfitting. Double the number of points and re run
+
 ## Discussion
 - Where to go from here.
   - Experimental data
   - Longer simulations.
-
-
-# Part 1 - The Warmup: Classification of Radius adn Refractive Index Regression
-
-## Classification Problem 
-
-
-The aim of this part is to use force and/or positions data to classify a particle into 5 or 10 classes of radius evenly spaced from 0.2 $\mu m$ to 1 $\mu m$. A time series approach will be taken for this problem, that is the time ordering of the positions and forces will be preserved
-
-The paper [1] compared several time series classification models on the UCR standard dataset. Based on the results from this paper the classification model will use a ResNet will be the basic model used 
-
-
-This problem will serve as a proof of concept as well as a base to build on for extending the model. The weights that are computed can be used for transfer learning a base for a regression problem or for a base for classification of refractive index.
-
-
-## The Data 
-A neural network which has been trained to predict the forces on a particle given its position, radius and refractive index was used to simulate a spherical particle in an optical trap to generate training data. The simulation uses a time step of 10e-4 and generates the forces and positions for 1100 steps, the first 100 steps being discarded due to these points corresponding to the particle falling into the trap (hence only data where the particle was settled in the trap was used). Therefore each time series is 1000 point long correponding to 0.1 seconds in the trap.
-
-
-## Regression Problem
-Regression replaces the discrete classes from the classification problem with a continuously varying output space. This is a more general and realistic problem as on any practical application of the network there will not be the same set of 5 or 10 radii.
-- How is it different to the classification problem
-- Challenges
+  - Multiple runs and averaging performance.
+  - 
 
 
 
-### Performance
-The network was trained on a GPU which significantly sped up the process a
+
+
 
 
 # Radii and Refractive Index Prediction
@@ -138,18 +150,6 @@ The network was trained on a GPU which significantly sped up the process a
 
 
 ## Main model progress
-- 200 Epochs.
-  - Training on the 15000 point dataset. Test Error:
-![Test](Figures/ErrorPlotTest200E.png)
-  - Training Error:
-![Train](Figures/ErrorPlotTrain200E.png)
-  
-- 400 Epochs.
-  - Test Error:
-![Test 400E](Figures/ErrorPlotTest400E.png)
-  - Training Error:
-![Train 400E](Figures/ErrorPlotTrain400E.png)
-- In history plot there appears to be some overfitting going on.
 
 # Summary 
 - Got simulation working to generate some data using trained 5 degree of freedom model 

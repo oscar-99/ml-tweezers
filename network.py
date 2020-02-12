@@ -44,7 +44,8 @@ class ResNetTS():
         self.input_shape = input_shape
         
         self.directory = os.path.join("models", self.name + ".h5")
-        self.check_loc = os.path.join("models", self.name + "-best" + ".h5")
+        self.check_loc = os.path.join("models", self.name + "-checkpoint" + ".h5")
+        self.hist_loc = os.path.join('models', self.name + '-history.csv')
         self.duration = None
 
         # Hyper parameters
@@ -160,12 +161,15 @@ class ResNetTS():
         # Build model
         self.model = keras.models.Model(inputs=self.input, outputs=out_layer)
 
+        # Build callbacks
         reduce_learning_rate = keras.callbacks.ReduceLROnPlateau(monitor='loss',factor=0.5, patience=50, min_lr=0.0001)
-        os.path.join("models", self.name + ".h5")
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.check_loc, monitor='loss', save_best_only=True)
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=self.check_loc)
+        model_history = keras.callbacks.CSVLogger(self.hist_loc, append=True)
 
-        self.callbacks = [reduce_learning_rate, model_checkpoint]
+        self.callbacks = [reduce_learning_rate, model_checkpoint, model_history]
         adam = keras.optimizers.Adam()
+
+
         self.model.compile(loss='mse', optimizer=adam, metrics=['mae', 'mape'])
 
         if self.verbose:
@@ -191,8 +195,7 @@ class ResNetTS():
 
         self.duration = time.time() - start_time
         print("Model Fit Complete. {} epochs completed in {:.2f}".format(self.n_epoch, self.duration/60))
-        self.save_weights()
-        self.save_logs()     
+        self.save_weights()    
         
 
     def evaluate_classify(self, x_val, y_val):
@@ -224,35 +227,28 @@ class ResNetTS():
 
     def load_weights(self, location=None):
         """
-        Load in the weights stored at file.
+        Load in the weights stored at file. Full path necessary.
         """
         # by_name will load in weights only in the final layer
         if location == None:
             self.model.load_weights(self.directory, by_name=True)
         else:
-            self.model.load_weights("models/" + location + ".h5", by_name=True)
+            self.model.load_weights(location, by_name=True)
             print("Custom Weights Loaded")
         
+    
+    def load_full_model(self, file):
+        """
+        Load in a full model, full path necessary. 
+        """
+        self.model = keras.models.load_model(file)
+        print("Full model loaded in.")
+
 
     def save_weights(self):
         """
         Saves the weights in output file
         """   
         self.model.save_weights(self.directory)
-
-
-    def save_logs(self):
-        """
-        Saves log information to a .csv
-        """
-        history_file = os.path.join('models', self.name + '-history.csv')
-        try:
-            hist_df = pd.read_csv(history_file)
-            hist_df = hist_df.append(pd.DataFrame(self.hist.history))
-
-        except FileNotFoundError:
-            hist_df = pd.DataFrame(self.hist.history)
-
-        hist_df.to_csv(history_file, index=False)
 
 

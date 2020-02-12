@@ -25,25 +25,25 @@ from diag import stat_values, position_plot, hist, history_plot_regression, hist
 
 # Parameters for training.
 axes = [0, 1, 2] # x, y and z axis
-sample_size = 15000
-epochs = 100
-
+epochs = 5
 
 # Process data.
-training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 13500)
-testing_data, testing_labels = ts_2d_data_prep('validation-test', axes, 10000)
-
+training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 1000)
+testing_data, testing_labels = ts_2d_data_prep('cont-data-nr-01-1-test', axes, 1000)
+validation_testing_data, validation_testing_labels = ts_2d_data_prep('validation-test', axes, 'all')
 
 # Build and train model
 input_shape = training_data.shape[1:] # Time series length
-model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-2")
+model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-4")
 model.build_regression_output(2) # output is n, r
-# model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
+model.load_full_model('models/resnet3-nr-regression-xyz-4-checkpoint.h5')
+model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
 model.evaluate_regression(testing_data, testing_labels)
+model.evaluate_regression(validation_testing_data, validation_testing_labels)
 
-tiles = 20
+tiles = 40
 # Diagnostics
-error_plot_2d(model, testing_data, testing_labels, tiles, tiles)
-error_plot_2d(model, training_data, training_labels, tiles, tiles)
+error_plot_2d(model, validation_testing_data, validation_testing_labels, tiles, tiles, 'Validation')
+error_plot_2d(model, training_data, training_labels, tiles, tiles, "Training")
 history_plot_regression(model)
 

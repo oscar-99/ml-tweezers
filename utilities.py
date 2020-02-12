@@ -15,8 +15,8 @@ def ts_2d_data_prep(file, axes, sample_size):
         The file where the data is located.
     axes : list<int>
         0 - x axis, 1 - y axis, 2 - z axis.
-    sample_size : int
-        The number of simulated time series to train on.
+    sample_size : int, str
+        The number of simulated time series to train on. If 'all' sample size is all of the points.
 
     Returns:
     --------
@@ -30,6 +30,10 @@ def ts_2d_data_prep(file, axes, sample_size):
     f = loadup(file, "force")
     n = loadup(file, 'n')
     r = loadup(file, 'radii')*1e6
+
+    if sample_size == 'all':
+        sample_size = n.size
+        print("All {} Points Selected".format(sample_size))
 
     # Generate targets.    
     targets = np.stack((n, r), axis=1)

@@ -360,7 +360,7 @@ def classify_error_plot(model, testing_data, testing_label):
     plt.title("Test Prediction Breakdown")
 
 
-def error_plot_2d(model, data, labels, x_tiles, y_tiles):
+def error_plot_2d(model, data, labels, x_tiles, y_tiles, data_type):
     '''
     A function to visualize the error for 2d regression.
 
@@ -372,6 +372,12 @@ def error_plot_2d(model, data, labels, x_tiles, y_tiles):
         Some data for the model.
     labels : np.array
         The labels for the data.
+    x_tiles : int
+        The tiles in the x direction in the plot.
+    y_tiles : int
+        The tiles in the y direction in the plot.
+    data_type : str
+        The dataset type i.e. train, test etc. For the title.
     '''
     y = model.predict(data)
     dy = y - labels
@@ -393,19 +399,21 @@ def error_plot_2d(model, data, labels, x_tiles, y_tiles):
 
     bounding_box = [float(x_labels[0]) , float(x_labels[-1]), float(y_labels[0]), float(y_labels[-1])]
 
+    plt.figure()
+    plt.suptitle("{} Dataset Error".format(data_type))
     plt.subplot(1, 2, 1)
     plt.title("Percentage Error in Refractive Index.")
     plt.imshow(n_bins.statistic, cmap='viridis', origin='lower', extent=bounding_box)
     plt.xlabel('Refractive Index')
     plt.ylabel("Radius")
-    plt.colorbar()
+    plt.colorbar(fraction=0.046, pad=0.04)
 
     plt.subplot(1, 2, 2)
     plt.title("Percentage Error in Radius.")
     plt.imshow(r_bins.statistic, cmap='plasma', origin='lower', extent=bounding_box)
     plt.xlabel('Refractive Index')
     plt.ylabel("Radius")
-    plt.colorbar()
+    plt.colorbar(fraction=0.046, pad=0.04)
 
     plt.show()
 
