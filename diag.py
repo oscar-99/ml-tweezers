@@ -449,7 +449,7 @@ def data_distribution_plot(file, n_tiles, r_tiles):
         plt.xlabel("Refractive Index")
         plt.ylabel("Radius (metres)")
         cbar = plt.colorbar()
-        cbar.ax.set_ylabel('Counts')
+        cbar.ax.set_ylabel('Count')
 
     plt.title("Plot of Data Distribution")
     print("Total Point Count: {}".format(n.size))

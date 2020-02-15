@@ -40,12 +40,12 @@ r_edges = np.linspace(radius_range[0], radius_range[1], r_tiles+1)*1e-6
 
 # generate_2d_data('cont-data-nr-01-1', t, simulations, sampling_rate, radius_range, n_range, r_tiles, n_tiles, train_test_split)
 
-
+data_distribution_plot('validation-test', n_edges, r_edges)
 data_distribution_plot('cont-data-nr-01-1-train', n_edges, r_edges)
 data_distribution_plot('cont-data-nr-01-1-test', n_edges, r_edges)
 
-data_distribution_plot('cont-data-nr-01-1-train', resolution*n_tiles, resolution*r_tiles)
-data_distribution_plot('cont-data-nr-01-1-test', resolution*n_tiles, resolution*r_tiles)
+# data_distribution_plot('cont-data-nr-01-1-train', resolution*n_tiles, resolution*r_tiles)
+# data_distribution_plot('cont-data-nr-01-1-test', resolution*n_tiles, resolution*r_tiles)
  
 
 # Plot some statistical analysis

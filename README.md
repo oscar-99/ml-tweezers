@@ -1,15 +1,15 @@
 # Deep Regression for Properties of Particles in Optical Tweezers
 
-
 ## What I learned
 
 I have learnt an immense amount over the course of the project both practically and in 'soft skills' such as:
-- Spending dedicated time everyday working on a fairly opened and self directed ended project has taught me a lot about being resourceful. Often I would be completely lost on how to proceed and spent hours searching for a starting place. The volume of new machine learning papers is very high so I found that having a flow from high level summary at stack exchange and other forum posts as well as direction from the supervisor very important to obtain direction and find specific papers and articles that were critical reading. 
-- I learned a lot about practical implementation of keras models, proper data generation, processing and storage techniques and choosing hyperparameters.  
+
+- Spending dedicated time everyday working on a fairly opened and self directed ended project has taught me a lot about being resourceful. Often I would be completely lost on how to proceed and spent hours searching for a starting place. The volume of new machine learning papers is very high so I found that having a flow from high level summary at stack exchange and other forum posts as well as direction from the supervisor very important to obtain direction and find specific papers and articles that were critical reading.
+
+- I learned a lot about practical implementation of keras models, proper data generation, processing avnd storage techniques and choosing hyperparameters. In particular I leant a lot about modern neural networks like ResNet for both image and time series classification. 
 - I learnt a lot about how to design a good workflow for modelling. Specifically, I found out how important it is to have a good idea of the *data generation -> data processing -> model training -> model output and analysis* pipeline before beginning the implementation. A lot of time on my project was spent recoding old systems that I had thrown together without knowing exactly where I was heading. If I had a good idea of my objectives and how I planned to implement from the start then I think I could have saved a lot time rewriting this code.
 - Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off of and get feedback. The supervisor was very important for giving direction and narrowing down which avenues were most important to pursue. 
 - Explaining the project at a variety of people at different knowledge levels (supervisors, group members, family and friends) helped me better understand how to communicate scientific/technical concepts.
-
 
 The project involved simulation of data using a neural network, statistical analysis of the data, building and training models and assessing the performance of models.
 
@@ -21,8 +21,6 @@ The ultimate goal of the project was to develop a neural network which can take 
 
 An efficient means to estimate the radius or refractive index of a given trapped particle could be of a lot of value to optical tweezers researchers. For example, by allowing fast categorization of unknown particles or by allowing measurement of the properties of  difficult to measure particles just by their motion.
 
-
-
 ## Method 
 
 - A description of the model.
@@ -31,52 +29,41 @@ An efficient means to estimate the radius or refractive index of a given trapped
 
 ### The Time Series Approach
 
-
-In attempting to predict the properties of the particle I thought it would be valuable to capture the dynamics of the particle behavior in the data being fed to the model. A natural way of encoding the extra dynamic information into the data is preserve the time ordering of data. That is, instead of feeding the model a list of unordered values or histograms and other statistical summaries of the the data, a whole time series of values could be used for each radius and refractive index. This would allow the model to observe how different radius and refractive index values affect the behaviour of the particle dynamically over time rather than just at a point. I have also had some experience working with time series data and thought it could be a good way to differentiate my project from previous work and the work of other group members.
-
-For practical reasons (with the current experimental setup force data can be captured at a far higher rate than position data) I decided to focus on using just force data in the x, y and z axes.
-
-
-
-
-- Sampling of position vs. force
-- Ax
-- Breakthrough in using multiple force axes
-
+In attempting to predict the properties of the particle I thought it would be valuable to capture the dynamics of the particle behavior in the data being fed to the model. A natural way of encoding the extra dynamic information into the data is preserve the time ordering of data. That is, instead of feeding the model a list of unordered values or histograms and other statistical summaries of the the data, a whole time series of values could be used for each radius and refractive index. This would allow the model to observe how different radius and refractive index values affect the behaviour of the particle dynamically over time rather than just at a point. I have also had some experience working with time series data and thought it could be a good way to differentiate my project from previous work and the work of other group members. For practical reasons (with the current experimental setup force data can be captured at a far higher rate and precision than position data) I decided to focus on using just force data in the x, y and z axes.
 
 ### ResNet Model
-An advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are based on recent breakthroughs in image classification. In image classification/regression problems the model is trained to analyse images to categorize them into classes (for example the type of animal in a picture), in the case of classification or into a single or multiple continuous outputs (for example predicting a house price from an image), as in the case of regression. Image classification/regression is a surprisingly similar problem to time series classification/regression as fundamentally an image (at least a grey scale image), to a computer, is a two dimensional (matrix) collection of ordered values whereas a time series is simple a one dimensional collection of ordered values. This similarity between the two problems means that a lot of the techniques for image classification/regression carry over to time series classification/regression. 
+
+An advantage of taking a time series approach is that allows utilization of some highly flexible and efficient times series classification/regression models. These models are based on recent breakthroughs in image classification. In image classification/regression problems the model is trained to analyse images to categorize them into classes (for example the type of animal in a picture), in the case of classification or into a single or multiple continuous outputs (for example predicting a house price from an image), as in the case of regression. Image classification/regression is a surprisingly similar problem to time series classification/regression as fundamentally an image (at least a grey scale image), to a computer, is a two dimensional (matrix) collection of ordered values whereas a time series is simple a one dimensional collection of ordered values. This similarity between the two problems means that a lot of the techniques for image classification/regression carry over to time series classification/regression.
 
 A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around convolution layers, whereby a square of weighted values (5x5 for 25 total weights for example) called a filter or kernel is 'slid' along the image (recall, just a matrix) computing the dot product at each stage between the weights of the filter and the values of the image passed over by the filter and outputting that value to a new matrix. There can be multiple such filters and hence multiple output matrices for a given input matrix.
 
 ![Convolution](/Figures/convolution.gif)
 
-(image from https://github.com/vdumoulin/conv_arithmetic)
+(Input matrix in blue, filter is shading and output matrix is in cyan. Image from https://github.com/vdumoulin/conv_arithmetic)
 
-The values actually trained by the neural network for convolution layers are the filter weights and these same filter weights are applied everywhere along an image we can think of the network training the filters to activate when distinguishing features are present regardless of their location in the image. An example is training a network to classify images into either being of dogs or zebras. We can think of our model using certain filters to activate, for example, when they detect stripes, paws or floppy ears as these are distinguishing features, regardless of where they are located in the image. Convolutional neural networks are far more parsimonious, in that, so long as it doesn't matter so much where the distinguishing features are located as they can utilise information in every area of the image. Something like a fully connected neural network which has no sense of the space of the image and which tries to learn the image features in each location from scratch will require far more parameters to achieve the same results.
+The values actually trained by the neural network for convolution layers are the filter weights and these same filter weights are applied everywhere along an image we can think of the network training the filters to activate when distinguishing features are present regardless of their location in the image. An example is training a network to classify images into either being of dogs or zebras. We can think of our model using certain filters to activate, for example, when they detect stripes, paws or floppy ears as these are distinguishing features (just as an example, in all likelihood a CNN would not use those features), regardless of where they are located in the image. Convolutional neural networks are far more parsimonious, in that, so long as it doesn't matter so much where the distinguishing features are located as they can utilise information in every area of the image. Something like a fully connected neural network which has no sense of the space of the image and which tries to learn the image features in each location from scratch will require far more parameters to achieve the same results.
 
 (for reference and more reading on convolutional neural networks see [3])
 
-It was decided from a review of time series classification literature (in particular using deep learning) [1] to use a ResNet classification Architecture. The architecture takes the highly successful image classification and modifies it to be used on time series data. The ResNet Architecture has several advantages:
-- Deep network that can avoid the vanishing gradient problem.
-- The best performance on the UCR Time Series Classifcation Dataset [1] among other leading time series classification architecture.
-- Highly transferable: can use trained weights as initialization for regression model or for pretraining an experimentally generated dataset.
-- Can generate as much data as needed which suits a deep learning approach
+For time series classification model we are no longer dealing with a a two dimensional image we swap square convolutions for rectangular with the width of the rectangle always being the same as the number of variables in the time series. For example, for a single variable time series we might choose a filter of 5 by 1 and for a k variable time series we could choose a 3 by k. The aim is still to slide this filter along the time series and train it to detect distinguishing features, for example, spikes of certain heights or areas with high or low variance.
 
+(See [4] for some illustration and examples.)
 
-### Performance
-The network was trained on a GPU which significantly sped up the process a
+CNNs are a broad class of models and choice of architecture can have a large influence on the predictive success of a model. The paper *Deep learning for time series classification: a review* [1] compares 9 deep learning architectures for the classification of time series over 97 standard time series classification datasets including a basic Multilayer Perceptron (MLP), a Fully Convolutional Network (FCN), a Residual Network (ResNet) and other convolutional and non convolutional networks. Each model was run 10 times and the results averaged together to reduce the importance of the random initialization. The winner of the competition for single variable time series was ResNet, followed by FCN. ResNet took the first place on 50 out of 85 tests. On multivariate FCN edged a win over ResNet but due to the small number of multivariate time series, the difference between the two was negligible.
 
+On the basis of these tests it was decided to implement a ResNet time series classification model, specifically one similar to that used in the above tests. ResNet for time series classification is based on the highly successful ResNet for image classification. The ResNet model was introduced in 2015 and achieved a record error of 3.57% and first place in the 2015 ImageNet ILSVRC challenge, in which models compete to sort images into 1000 classes [5]. The refinements made in ResNet over previous convolutional networks were huge, just three years earlier AlexNet had popularized the convolutional approach with a record score of 16% error on the ImageNet, the closest runner up achieving 26% [3].
+
+The time series classification ResNet (the one used in [1]) is based upon 3 residual blocks, each residual block being composed of 3 convolution blocks. A convolution block is composed of a convolution layer followed by a batch normalization layer and a ReLU activation layer. The batch normalization layer has been found to significantly stabilize and speed up training. All convolutional layers have 64 filters but within each residual block the first, second and third convolutional layers have a filter length of respectively 8, 5, and 3. There is also a skip connection built into every residual block. That is the input from the start of the block is directly summed with the output of the 3 convolution blocks making up the residual block, this skip connection is what makes a Residual Network (ResNet). The purpose of the skip connections is to avoid the degradation in performance observed in deep neural networks. This degradation is counter intuitive as, theoretically, unnecessary additional layers could simply be trained to be the identity mapping, $F(x) = x$, without any change in performance. This depth problem is thought to be caused by difficulty in learning the identity mapping or close to the identity mapping. Residual connections fix the problem by letting the convolution blocks learn the residual rather than the full output; the desired total output of a residual block with a skip connection is $H(x) = F(x) + x$ where $H(x)$ is the true mapping and $F(x)$ is the output of the convolutional layers. From this we can see our convolutional layers now learn $R(x) = H(x) - x$, the residual. This appears to make it easier for deep models to learn the identity mapping (or close to identity) by setting $F(x) = 0$ [5]. After the three residual blocks there is a global average pooling layer which averages along the time dimension which is followed by the final fully connected softmax layer that serves as the output of the network.
+
+So far we have discussed only a classification model, the model for this project needs to be capable of performing regression as well. In the paper *A Comprehensive Analysis of Deep Regression* [6] found that simply replacing the final softmax layer of the image classification networks ResNEt and VGG with a fully connected linearly activation layer lead to good results for image regression. Following this result, the model for this project will be modified for regression simply by replacing the softmax classification layer with a linear regression layer. It should be noted that the models in [6] were first trained on the ImageNet classification problem before being modified for regression, since there is no real 'standard' dataset for time series classification the ResNet model used will not be pretrained. As a modification to the current method undertaken here it would be possible to pretrain on a simpler classification problem i.e. sorting particles into discrete categories then switch out the classification layer for the regression layer.
 
 ## Data
 
+### Simulation
 
-### Simulation 
+To generate enough training data a simulation method was used rather than physically measuring data from trapped particles. The data was simulated using the previously mentioned 5 degree of freedom (5-DOF) fully connected neural network which takes in $(x,y,z)$ position, radius and refractive index and outputs forces. This network had been trained on a range of radii from ~0.1-1 micron and a range of refractive indices ~1.4-2.
 
-To generate enough training data a simulation method was used rather than physically measuring data from trapped particles. The data was simulated using the previously mentioned 5 degree of freedom (5-DOF) fully connected neural network which takes in $(x,y,z)$ position, radius and refractive index and outputs forces. This network had been trained on a range of radii from ~0.1-1 micron and a range of refractive indices ~1.4-2. 
-
-The simulation worked by computing the positions and forces of the particle in discrete time steps. The particle was initialized at the origin and 
-at each time step the $(x,y,z)$ position of the particle was inputted into the 5-DOF network which outputted the value of the deterministic forces due to the trap in each direction $(f_x, f_y, f_z)$. The particles are sufficiently small that a brownian motion term from thermal agitation also had to be added to the deterministic forces. Following [2], these forces are used to compute the new position of the particle.
+The simulation worked by computing the positions and forces of the particle in discrete time steps. The particle was initialized at the origin and at each time step the $(x,y,z)$ position of the particle was inputted into the 5-DOF network which outputted the value of the deterministic forces due to the trap in each direction $(f_x, f_y, f_z)$. The particles are sufficiently small that a brownian motion term from thermal agitation also had to be added to the deterministic forces. Following [2], these forces are used to compute the new position of the particle.
 
 Once the simulation of the motion of the particle was complete the positions were plotted to ensure that the expected trapping behaviour was occurring (radii and refractive indices that were too close to the boundary of the range of values the 5-DOF network was trained on did not trap properly) and it was found that a time step of $10^{-4}$ was sufficiently small to observe the expected trapping behaviour without excessively small steps. It was also noticed in these plots that the trap centre was not always located at the origin and hence the first 50 or so time steps were made up of the particle 'falling' into the trap. For this reason it was decided that first hundred points of each simulation would be removed to ensure only 'regular' trapped behaviour would be included.
 
@@ -87,42 +74,47 @@ The simulation for each particle was run for 0.1 seconds which, with a time step
 The
 
 - Data generation method and processing.
+  - Normalisation
 - Description of earlier methods and difference.
 - Description of simulation
 
-Moving to two dimensions introduces a dimensionality problem to the data generation. For example, in a single dimension 10000 uniformly distributed points would cover a unit length with a density of 100 points per 0.01 step. In two dimensions 10000 uniformly distributed points would cover a unit square with only 1 point per 0.01 square. This presents several problems for the old data generation process:
-1. The low number of points per square means that less of the space of possible values will be available to the model.
-2. Variance in the uniform distribution process will mean some squares will have no points and others will have more than average further reducing the coverage of the space. 
+The fact that the data varied in radius and refractive index introduced a dimensionality problem to the data generation. For example, in a single dimension 10000 uniformly distributed points would cover a unit length with a density of 100 points per 0.01 step. In two dimensions 10000 uniformly distributed points would cover a unit square with only 1 point per 0.01 square. This presents several problems for a naive uniform distribution data generation process (like that used in early single variable testing):
 
-To solve these problems, several methods will be employed. 
-1. Cutting down the space of refractive index and radii values to n=(1.5, 1.7), r = (0.4, 0.6) from n = (1.4, 1.7), r = (0.2, 0.8). This will help cut down on the raw number of points necessary to cover the space. Once a functioning model has been trained this space of points can be increased with transfer learning and simulation.
-2. An increase in the raw number examples. At least 10000 points will be the baseline, number of points. From this baseline analysis of problematic points will allow targeted generation of training points over the problem spots. 
-3. A move away from a full uniform distribution. Instead create a grid of tiles at a certain 'resolution' then sample points within the tiles. This will guarantee a certain resolution of uniform coverage. See image below for two plots of 12000 simulated points (10400 at 20 x 20 resolution, 1600 at 40 x 40). The first plot at a resolution of 20 x 20 and the second at 40 x 40. This new method implemented in the generate_2d_data function.
+1. The low number of points per square means that less of the space of possible values will be covered by the data.
 
-![Point Distribution 1](Figures/PointDistribution1.png)
+2. Variance in the uniform distribution process will mean some parts of the space will have very little coverage while others will be highly saturated.
 
-![Point Distribution 2](Figures/PointDistribution2.png)
+To solve these problems, several methods were employed.
 
- 
+1. Cutting down the space of refractive index and radii values to n=(1.5, 1.7), r = (0.4, 0.6) from the full space of valid points. This will help cut down on the raw number of points necessary to cover the space. Once a functioning model has been trained this space of points can be increased easily with transfer learning and simulation.
+
+2. An increase in the raw number of examples. At least 10000 points will be the baseline, number of points. It was also thought that analysis of problematic points will allow targeted generation of training points over areas where error is highest.
+
+3. A move away from a fully uniform distribution. Instead a grid of tiles was created at a certain 'resolution' then points were sampled within the tiles. This will guarantee at that resolution uniform coverage. See image below for the plots of 15000 simulated points (10400 at 20 x 20 resolution, 1600 at 40 x 40). The first plot at a resolution of 20 x 20 and the second at 40 x 40. This new method implemented in the generate_2d_data function.
 
 ### Data Leakage Problem
 
-Data leakage is the sharing of information from the validation or testing set to the training set. It is a problem because it can lead to over performance of the model on the supposedly 'unseen' training set. 
+Data leakage is the sharing of information from the validation or testing set to the training set. It is a problem because it can lead to over performance of the model on the supposedly 'unseen' training set.
 
-Specifically, the problem of data leakage appears in this case because the dataset is built up iteratively by increasing the sampling rate of specific problem areas. The distribution of the dataset is thus changing from iteration to iteration. This is a problem because in an earlier iteration of the method for predicting the value of a single variable the training and testing sets were simply obtained by splitting the dataset at some index (usually 90/10 training/testing). This naive method worked because samples in this case were drawn from one distribution (a uniform with set bounds) and so randomization was done at the data generation stages. 
+Specifically, the problem of data leakage appears in this case because the dataset is built up iteratively by increasing the sampling rate of specific problem areas. The distribution of the dataset is thus changing from iteration to iteration. This is a problem because in an earlier iteration of the data generation process the training and testing sets were simply obtained by splitting the dataset at some index (usually 90/10 - training/testing). This naive method worked because samples in this case were drawn from one distribution (a uniform with set bounds) and so randomization was done at the data generation stages.
 
-If this same naive method was performed for the iterative data generation method then the training and testing sets will be from arbitrarily different distributions which is obviously problematic i.e. when taking the last 10% of the dataset for testing the last group of points generated will always be over represented in the testing set. A basic way to solve this problem would be to shuffle before generating the training and testing splits for each iteration of training to ensure that they are of the same distribution. However, if the weights are retained from a previous iteration this will result in examples from the previous training set ending up in the testing set, an over fitting problem.
+If this same naive method was performed for the iterative data generation method (i.e. updating the dataset in stages with more points over high error areas) then the training and testing sets will be from arbitrarily different distributions which is problematic i.e. when taking the last 10% of the dataset for testing the last group of points generated will always be over represented in the testing set. A basic way to solve this problem would be to shuffle before generating the training and testing splits for each iteration of training to ensure that they are of the same distribution. However, if the weights are retained from a previous iteration this will result in examples from the previous training set ending up in the testing set, a data leakage.
 
-Another data leakage problem occurred when z normalizing the data in the earlier iterations; the mean and standard deviation were taken from the entire set of samples collected i.e. both training and testing data. This means that information from the testing data was incorporated into the training data an obvious source of data leakage. 
+Another data leakage problem occurred when z normalizing the data in the earlier iteration of the data processing method; the mean and standard deviation used to perform normalization were taken from the entire set of samples collected i.e. both training and testing data. This means that information from the testing data was incorporated into the training data an obvious source of data leakage.
 
-These problems were fixed by a new implementation of the data generation and processing. Specifically, by building up the training and testing datasets at the same time but separately at the simulation stage. i.e. x% of the runs of the simulation are siphoned off to build up the testing data. Pre-processing of the data (including normalisation) then occurred on these separate datasets.  This ensured that the training and testing data are of the same distribution and that information from each dataset are not incorporated into the other.
+These problems were fixed by a new implementation of the data generation and processing. Specifically, by building up the training and testing datasets at the same time but separately at the simulation stage. i.e. 10% of the runs of the simulation are siphoned off to build up the testing data. Processing of the data (including normalization) then occurred on these separate datasets. This ensured that the training and testing data are of the same distribution and that information from each dataset are not incorporated into the other.
 
+
+
+![Point Distribution 1](Figures/PointDistributionTraining.png)
+
+![Point Distribution 2](Figures/PointDistributionTesting.png)
 
 
 ## Results 
 - Description of the results.
   - Error plots etc.
-
+- Breakthrough in using multiple force axes
 To help with 
 
 The model was trained for 100 epochs on 15000 points distributed in a 40 by 40 grid (see data section for details) covering the whole dataset. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
@@ -133,8 +125,11 @@ The first of the problem areas is the large error 'bar' in the region of n = (1.
 
 So on so on
 
+A seperate 'validation' dataset was also created with 10000 points. This dataset will allow easier analysis of error by ensuring that the space radii and refractive indices is covered.
 
 Ran a 500 epoch train and saw significant overfitting. Double the number of points and re run
+
+Google colab 300 epoch with 20000
 
 ## Discussion
 - Where to go from here.
@@ -142,11 +137,6 @@ Ran a 500 epoch train and saw significant overfitting. Double the number of poin
   - Longer simulations.
   - Multiple runs and averaging performance.
   - 
-
-
-
-
-
 
 
 # Radii and Refractive Index Prediction
@@ -175,7 +165,11 @@ Ran a 500 epoch train and saw significant overfitting. Double the number of poin
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
 2. Simulation of a Brownian particle in an optical trap (2013): https://aapt-scitation-org.ezproxy.library.uq.edu.au/doi/full/10.1119/1.4772632
 3. https://cs231n.github.io/convolutional-networks/
-   
+4. https://towardsdatascience.com/how-to-use-convolutional-neural-networks-for-time-series-classification-56b1b0a07a57
+5. resnet - https://arxiv.org/abs/1512.03385
+6. deep regression  - https://arxiv.org/pdf/1803.08450.pdf
+
+
 
 # Storage Documentation
 ## Data
