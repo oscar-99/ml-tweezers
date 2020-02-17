@@ -74,12 +74,9 @@ To fix the overfitting problem
     -  Do I lose information with z normalisation?
     - Maybe some kind of max divide method?
   - Truncation of first 100 points.
-    - Start from random positions centred at the trap equilibrium 
+    - Start from random positions centred at the trap equilibrium
       - Capture some of the away from equilibrium behavior. This may boost the information available to the model.
       - Generalisability. 
 - Run the model on a UCR dataset to verify the architecture is functioning correctly
 - Shuffle the order of the time series.
 - Add longer time series to capture more long term movements
-
-
-

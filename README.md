@@ -190,15 +190,25 @@ To avoid this and any other data leakage problem, it was decided to build up the
 ### The Datasets
 
 The following plots were generated to show the distribution of the largest dataset generated, with 30000 points distributed over a 40x40 grid.
-| ![Point Distribution 1](Figures/PointDistributionTraining.png) |
+
+| ![Training Point Distribution](Figures/PointDistributionTraining.png) |
 |:--:|
 | *Plot of Training Set 40 by 40 Grid* |
 
-| ![Point Distribution 2](Figures/PointDistributionTesting.png)|
+| ![Testing Point Distribution](Figures/PointDistributionTesting.png)|
 |:--:|
 | *Plot of Testing Set 40 by 40 Grid* |
 
 Note how at places where there are less points in the training set there are more in the testing set. This is because the testing set was formed from taking a tenth of the points in the training set, the two datasets together would be very close to uniform.
+
+Also generated was a separate 'validation' dataset made up of 10000 points distributed in a 40 by 40 grid. This dataset will provide an evenly covered dataset for obtaining accurate error plots and estimates (testing dataset is too small to cover a detailed error plot).
+
+| ![Validation Point Distribution](Figures/PointDistributionValidation.png) |
+|:--:|
+| *Plot of Validation Set 40 by 40 Grid* |
+
+Coverage is very even in the validation dataset because no points are taken for use in a testing set.
+
 
 ## Results 
 - Description of the results.
@@ -206,13 +216,19 @@ Note how at places where there are less points in the training set there are mor
 - Breakthrough in using multiple force axes
 To help with 
 
-### Testing Iterative Generation
+### Preliminary Testing and Iterative Generation
 
-The model was trained for 100 epochs on 15000 points distributed in a 40 by 40 grid (see data section for details) covering the whole dataset. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
+The first step was to do some short preliminary runs and test the iterative method for building up the dataset. The base dataset 15000 points distributed in a 40 by 40 grid (see data section for details) covering the space $n = (1.5, 1.7)$ and $r = (0.4, 0.6)$. A preliminary model (model A) was trained for 100 epochs on this dataset as a baseline. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
 
 
 
 The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively.
+
+| Model | Loss | MAPE |
+|------|-----|-----|
+| A | 0.0004 | 1.7849|
+| B | | |
+| C | | |
 
 So on so on
 
@@ -345,7 +361,6 @@ Regards,
 Oscar Smee
 Images: regression_n_loss_accuracy, regression_n_accuracyvsn
 
-
 ## 29/1/2020
 - So Far:
   - Happy with performance for 600 epochs on refractive index regression. Ready to move onto full generality of model where I think a lot of the ideas about overfitting/tightening up the models can be applied. 
@@ -359,7 +374,6 @@ Images: regression_n_loss_accuracy, regression_n_accuracyvsn
   - Read about multiple outputs
   - Breakdown error by variable and by validation and testing.
   
-
 ## 5/2/2020
 - So far:
   - Smarter method of simulating points, perhaps sampling within a non random grid to ensure there is enough coverage of parameter space or making less likely to generate a point close to other points.
