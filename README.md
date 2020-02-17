@@ -227,11 +227,20 @@ The first of the problem areas is the large error 'bar' in the region of n = (1.
 
 After building up this augmented dataset it was tested in two ways: 1. by running 100 further epochs on the new dataset (Model B) 2. By starting again and repeating the first 100 epochs fresh on the new dataset (Model C).
 
+The error plot for models B and C are shown below as well as a table final validation stats for each model:
+| ![Model B Validation Error](Figures/ErrorPlotValidation200E.png) |
+|:--:|
+| *Plot of Validation Error Model B* |
+
+| ![Model C Validation Error](Figures/ErrorPlotValidation100E-20000.png) |
+|:--:|
+| *Plot of Validation Error Model C* |
+
 | Model | Loss on Validation | MAE on Validation | MAPE on Validation |
 |:---:|:---:|:---:| :---: |
-| A | 0.0004 | 0.0152 | 1.7849|
-| B | | |
-| C | | |
+| A | 0.0004 | 0.0152 | 1.7849 |
+| B | 0.0004 | 0.0145 | 1.7013 |
+| C | 0.0006 | 0.0192 | 2.1639 |
 
 So on so on
 
@@ -258,18 +267,12 @@ Google colab 300 epoch with 20000
   - Experimental data
   - Longer simulations.
   - Multiple runs and averaging performance.
-  - 
-
-
-# Radii and Refractive Index Prediction
-
-
-
-
+  
 ## Main model progress
 
-# Summary 
-- Got simulation working to generate some data using trained 5 degree of freedom model 
+# Summary
+
+- Got simulation working to generate some data using trained 5 degree of freedom model
 - Reading up on Neural Networks particularly convolutional neural networks and image classification.  
 - Built a simple MLP model to help learn how keras works and how to process the generated data.
 - Shifted reading focus to time series classification/regression.
