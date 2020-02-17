@@ -210,7 +210,7 @@ To help with
 
 The model was trained for 100 epochs on 15000 points distributed in a 40 by 40 grid (see data section for details) covering the whole dataset. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
 
-![Validation 100 Epochs](Figures/ErrorPlotValidation100E.png)
+
 
 The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively.
 
@@ -221,6 +221,18 @@ A seperate 'validation' dataset was also created with 10000 points. This dataset
 Ran a 500 epoch train and saw significant overfitting. Double the number of points and re run
 
 Google colab 300 epoch with 20000
+
+| ![Validation 500 Epochs 30000 Points](Figures/ErrorPlotValidation30000.png) |
+|:--:|
+| *Plot of Validation Error 30000 Points, 500 Epochs of Training* |
+
+| ![Training 500 Epochs 30000 Points](Figures/ErrorPlotTraining30000.png)|
+|:--:|
+| *Plot of Training Error 30000 Points, 500 Epochs of Training* |
+
+| ![Validation 500 Epochs](Figures/Diagnostics30000.png)|
+|:--:|
+| *Diagnostic Plot 30000 Points, 500 Epochs of Training* |
 
 ## Discussion
 - Where to go from here.
