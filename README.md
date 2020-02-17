@@ -36,17 +36,19 @@ An advantage of taking a time series approach is that allows utilization of some
 
 A key class of models for the image classification models are Convolutional Neural Networks (CNN). These models are based around convolution layers, whereby a square of weighted values (5x5 for 25 total weights, for example) called a filter or kernel is 'slid' along the image (recall, just a matrix) computing the dot product at each stage between the weights of the filter and the values of the image passed over by the filter and outputting that value to a new matrix. There can be multiple such filters for each input that each capture a different aspect of the data and hence multiple output matrices for a given input matrix are possible.
 
-![Convolution](/Figures/convolution.gif)
+|![Convolution](/Figures/convolution.gif)|
+|:--:|
+| *Convolution Diagram* |
 
-(Input matrix in blue, filter is shading and output matrix is in cyan. Image from https://github.com/vdumoulin/conv_arithmetic)
+(*Input matrix in blue, filter is shading and output matrix is in cyan. Image from https://github.com/vdumoulin/conv_arithmetic*)
 
 The values actually trained by the neural network for convolution layers are the filter weights and these same filter weights are applied everywhere along an image we can think of the network training the filters to activate when distinguishing features are present regardless of their location in the image. An example is training a network to classify images into either being of dogs or zebras. We can think of our model using certain filters to activate, for example, when they detect stripes, paws or floppy ears as these are distinguishing features (just as an example, in all likelihood a CNN would not use those features), regardless of where they are located in the image. Convolutional neural networks are far more parsimonious, in that, so long as it doesn't matter so much where the distinguishing features are located as they can utilise information in every area of the image. Something like a fully connected neural network which has no sense of the space of the image and which tries to learn the image features in each location from scratch will require far more parameters to achieve the same results.
 
-(for reference and more reading on convolutional neural networks see [3])
+(*for reference and more reading on convolutional neural networks see [3]*)
 
 For time series classification model we are no longer dealing with a a two dimensional image we swap square convolutions for rectangular with the width of the rectangle always being the same as the number of variables in the time series. For example, for a single variable time series we might choose a filter of 5 by 1 and for a k variable time series we could choose a 3 by k. The aim is still to slide this filter along the time series and train it to detect distinguishing features, for example, spikes of certain heights or areas with high or low variance.
 
-(See [4] for some illustration and examples.)
+(*See [4] for some illustration and examples.*)
 
 CNNs are a broad class of models and choice of architecture can have a large influence on the predictive success of a model. The paper *Deep learning for time series classification: a review* [1] compares 9 deep learning architectures for the classification of time series over 97 standard time series classification datasets (the UCR time series archive) including a basic Multilayer Perceptron (MLP), a Fully Convolutional Network (FCN), a Residual Network (ResNet) and other convolutional and non convolutional networks. Each model was run 10 times and the results averaged together to reduce the importance of the random initialization. The winner of the competition for single variable time series was ResNet, followed by FCN. ResNet took the first place on 50 out of 85 tests. On multivariate FCN edged a win over ResNet but due to the small number of multivariate time series, the difference between the two was negligible.
 
@@ -187,8 +189,7 @@ To avoid this and any other data leakage problem, it was decided to build up the
 
 ### The Datasets
 
-The following plots were generated to show the distribution of the largest dataset generated, with 30000 points distributed over a 40x40 grid. The points
-
+The following plots were generated to show the distribution of the largest dataset generated, with 30000 points distributed over a 40x40 grid.
 | ![Point Distribution 1](Figures/PointDistributionTraining.png) |
 |:--:|
 | *Plot of Training Set 40 by 40 Grid* |
@@ -197,13 +198,15 @@ The following plots were generated to show the distribution of the largest datas
 |:--:|
 | *Plot of Testing Set 40 by 40 Grid* |
 
-
+Note how at places where there are less points in the training set there are more in the testing set. This is because the testing set was formed from taking a tenth of the points in the training set, the two datasets together would be very close to uniform.
 
 ## Results 
 - Description of the results.
   - Error plots etc.
 - Breakthrough in using multiple force axes
 To help with 
+
+### Testing Iterative Generation
 
 The model was trained for 100 epochs on 15000 points distributed in a 40 by 40 grid (see data section for details) covering the whole dataset. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
 
