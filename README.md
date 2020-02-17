@@ -54,8 +54,95 @@ On the basis of these tests it was decided to implement a ResNet time series cla
 
 The time series classification ResNet (the one used in [1]) is based upon 3 residual blocks, each residual block being composed of 3 convolution blocks. A convolution block is composed of a convolution layer followed by a batch normalization layer and a ReLU activation layer. The batch normalization layer has been found to significantly stabilize and speed up training. All convolutional layers have 64 filters but within each residual block the first, second and third convolutional layers have a filter length of respectively 8, 5, and 3. There is also a skip connection built into every residual block. That is the input from the start of the block is directly summed with the output of the 3 convolution blocks making up the residual block, this skip connection is what makes a Residual Network (ResNet). The purpose of the skip connections is to avoid the degradation in performance observed in deep neural networks. This degradation is counter intuitive as, theoretically, unnecessary additional layers could simply be trained to be the identity mapping, $F(x) = x$, without any change in performance. This depth problem is thought to be caused by difficulty in learning the identity mapping or close to the identity mapping. Residual connections fix the problem by letting the convolution blocks learn the residual rather than the full output; the desired total output of a residual block with a skip connection is $H(x) = F(x) + x$ where $H(x)$ is the true mapping and $F(x)$ is the output of the convolutional layers. From this we can see our convolutional layers now learn $R(x) = H(x) - x$, the residual. This appears to make it easier for deep models to learn the identity mapping (or close to identity) by setting $F(x) = 0$ [5]. After the three residual blocks there is a global average pooling layer which averages along the time dimension which is followed by the final fully connected softmax layer that serves as the output of the network.
 
-So far we have discussed only a classification model, the model for this project needs to be capable of performing regression as well. In the paper *A Comprehensive Analysis of Deep Regression* [6] found that simply replacing the final softmax layer of the image classification networks ResNEt and VGG with a fully connected linearly activation layer lead to good results for image regression. Following this result, the model for this project will be modified for regression simply by replacing the softmax classification layer with a linear regression layer. It should be noted that the models in [6] were first trained on the ImageNet classification problem before being modified for regression, since there is no real 'standard' dataset for time series classification the ResNet model used will not be pretrained. As a modification to the current method undertaken here it would be possible to pretrain on a simpler classification problem i.e. sorting particles into discrete categories then switch out the classification layer for the regression layer.
+So far we have discussed only a classification model, the model for this project needs to be capable of performing regression as well. In the paper *A Comprehensive Analysis of Deep Regression* [6] found that simply replacing the final softmax layer of the image classification networks ResNEt and VGG with a fully connected linearly activation layer lead to good results for image regression. Following this result, the model for this project will be modified for regression simply by replacing the softmax classification layer with a linear regression layer. It should be noted that the models in [6] were first trained on the ImageNet classification problem before being modified for regression, since there is no real 'standard' dataset for time series classification the ResNet model used will not be pretrained. As a modification to the current method undertaken here it would be possible to pretrain on a simpler classification problem i.e. sorting particles into discrete categories then switch out the classification layer for the regression layer. An example of 
 
+```
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to
+==================================================================================================
+input_1 (InputLayer)            (None, 1000, 3)      0
+__________________________________________________________________________________________________
+conv1d_1 (Conv1D)               (None, 1000, 64)     1600        input_1[0][0]
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 1000, 64)     256         conv1d_1[0][0]
+__________________________________________________________________________________________________
+activation_1 (Activation)       (None, 1000, 64)     0           batch_normalization_1[0][0]
+__________________________________________________________________________________________________
+conv1d_2 (Conv1D)               (None, 1000, 64)     20544       activation_1[0][0]
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 1000, 64)     256         conv1d_2[0][0]
+__________________________________________________________________________________________________
+activation_2 (Activation)       (None, 1000, 64)     0           batch_normalization_2[0][0]
+__________________________________________________________________________________________________
+conv1d_4 (Conv1D)               (None, 1000, 64)     256         input_1[0][0]
+__________________________________________________________________________________________________
+conv1d_3 (Conv1D)               (None, 1000, 64)     12352       activation_2[0][0]
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 1000, 64)     256         conv1d_4[0][0]
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 1000, 64)     256         conv1d_3[0][0]
+__________________________________________________________________________________________________
+add_1 (Add)                     (None, 1000, 64)     0           batch_normalization_4[0][0]
+                                                                 batch_normalization_3[0][0]
+__________________________________________________________________________________________________
+activation_3 (Activation)       (None, 1000, 64)     0           add_1[0][0]
+__________________________________________________________________________________________________
+conv1d_5 (Conv1D)               (None, 1000, 128)    65664       activation_3[0][0]
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 1000, 128)    512         conv1d_5[0][0]
+__________________________________________________________________________________________________
+activation_4 (Activation)       (None, 1000, 128)    0           batch_normalization_5[0][0]
+__________________________________________________________________________________________________
+conv1d_6 (Conv1D)               (None, 1000, 128)    82048       activation_4[0][0]
+__________________________________________________________________________________________________
+batch_normalization_6 (BatchNor (None, 1000, 128)    512         conv1d_6[0][0]
+__________________________________________________________________________________________________
+activation_5 (Activation)       (None, 1000, 128)    0           batch_normalization_6[0][0]
+__________________________________________________________________________________________________
+conv1d_8 (Conv1D)               (None, 1000, 128)    8320        activation_3[0][0]
+__________________________________________________________________________________________________
+conv1d_7 (Conv1D)               (None, 1000, 128)    49280       activation_5[0][0]
+__________________________________________________________________________________________________
+batch_normalization_8 (BatchNor (None, 1000, 128)    512         conv1d_8[0][0]
+__________________________________________________________________________________________________
+batch_normalization_7 (BatchNor (None, 1000, 128)    512         conv1d_7[0][0]
+__________________________________________________________________________________________________
+add_2 (Add)                     (None, 1000, 128)    0           batch_normalization_8[0][0]
+                                                                 batch_normalization_7[0][0]
+__________________________________________________________________________________________________
+activation_6 (Activation)       (None, 1000, 128)    0           add_2[0][0]
+__________________________________________________________________________________________________
+conv1d_9 (Conv1D)               (None, 1000, 128)    131200      activation_6[0][0]
+__________________________________________________________________________________________________
+batch_normalization_9 (BatchNor (None, 1000, 128)    512         conv1d_9[0][0]
+__________________________________________________________________________________________________
+activation_7 (Activation)       (None, 1000, 128)    0           batch_normalization_9[0][0]
+__________________________________________________________________________________________________
+conv1d_10 (Conv1D)              (None, 1000, 128)    82048       activation_7[0][0]
+__________________________________________________________________________________________________
+batch_normalization_10 (BatchNo (None, 1000, 128)    512         conv1d_10[0][0]
+__________________________________________________________________________________________________
+activation_8 (Activation)       (None, 1000, 128)    0           batch_normalization_10[0][0]
+__________________________________________________________________________________________________
+conv1d_11 (Conv1D)              (None, 1000, 128)    49280       activation_8[0][0]
+__________________________________________________________________________________________________
+batch_normalization_12 (BatchNo (None, 1000, 128)    512         activation_6[0][0]
+__________________________________________________________________________________________________
+batch_normalization_11 (BatchNo (None, 1000, 128)    512         conv1d_11[0][0]
+__________________________________________________________________________________________________
+add_3 (Add)                     (None, 1000, 128)    0           batch_normalization_12[0][0]
+                                                                 batch_normalization_11[0][0]
+__________________________________________________________________________________________________
+activation_9 (Activation)       (None, 1000, 128)    0           add_3[0][0]
+__________________________________________________________________________________________________
+global_average_pooling1d_1 (Glo (None, 128)          0           activation_9[0][0]
+__________________________________________________________________________________________________
+reg2 (Dense)                    (None, 2)            258         global_average_pooling1d_1[0][0]
+==================================================================================================
+Total params: 507,970
+Trainable params: 505,410
+Non-trainable params: 2,560
+```
 ## Data
 
 ### Simulation
