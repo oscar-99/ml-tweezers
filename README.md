@@ -147,6 +147,7 @@ Total params: 507,970
 Trainable params: 505,410
 Non-trainable params: 2,560
 ```
+
 ## Data
 
 ### Simulation
@@ -209,23 +210,19 @@ Also generated was a separate 'validation' dataset made up of 10000 points distr
 
 Coverage is very even in the validation dataset because no points are taken for use in a testing set.
 
+## Results
 
-## Results 
-- Description of the results.
-  - Error plots etc.
 - Breakthrough in using multiple force axes
-To help with 
+To help with
 
 ### Preliminary Testing and Iterative Generation
 
 The first step was to do some short preliminary runs and test the iterative method for building up the dataset. The base dataset 15000 points distributed in a 40 by 40 grid (see data section for details) covering the space $n = (1.5, 1.7)$ and $r = (0.4, 0.6)$. A preliminary model (model A) was trained for 100 epochs on this dataset as a baseline. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
 
-
-
 The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively.
 
-| Model | Loss | MAPE |
-|------|-----|-----|
+| Model | Loss on Validation | MAPE on Validation |
+|:---:|:---:|:---:|
 | A | 0.0004 | 1.7849|
 | B | | |
 | C | | |
