@@ -217,13 +217,19 @@ To help with
 
 ### Preliminary Testing and Iterative Generation
 
-The first step was to do some short preliminary runs and test the iterative method for building up the dataset. The base dataset 15000 points distributed in a 40 by 40 grid (see data section for details) covering the space $n = (1.5, 1.7)$ and $r = (0.4, 0.6)$. A preliminary model (model A) was trained for 100 epochs on this dataset as a baseline. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added.
+The first step was to do some short preliminary runs and test the iterative method for building up the dataset. The base dataset 15000 points distributed in a 40 by 40 grid (see data section for details) covering the space $n = (1.5, 1.7)$ and $r = (0.4, 0.6)$. A preliminary model (model A) was trained for 100 epochs on this dataset as a baseline. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added. The results of this run are shown below:
+
+| ![Model A Validation Error](Figures/ErrorPlotValidation100E.png) |
+|:--:|
+| *Plot of Validation Error Model A* |
 
 The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively.
 
-| Model | Loss on Validation | MAPE on Validation |
-|:---:|:---:|:---:|
-| A | 0.0004 | 1.7849|
+After building up this augmented dataset it was tested in two ways: 1. by running 100 further epochs on the new dataset (Model B) 2. By starting again and repeating the first 100 epochs fresh on the new dataset (Model C).
+
+| Model | Loss on Validation | MAE on Validation | MAPE on Validation |
+|:---:|:---:|:---:| :---: |
+| A | 0.0004 | 0.0152 | 1.7849|
 | B | | |
 | C | | |
 
