@@ -58,7 +58,7 @@ The time series classification ResNet (the one used in [1]) is based upon 3 resi
 
 So far we have discussed only a classification model, the model for this project needs to be capable of performing regression as well. In the paper *A Comprehensive Analysis of Deep Regression* [6] found that simply replacing the final softmax layer of the image classification networks ResNEt and VGG with a fully connected linearly activation layer lead to good results for image regression. Following this result, the model for this project will be modified for regression simply by replacing the softmax classification layer with a linear regression layer. It should be noted that the models in [6] were first trained on the ImageNet classification problem before being modified for regression, since there is no real 'standard' dataset for time series classification the ResNet model used will not be pretrained. As a modification to the current method undertaken here it would be possible to pretrain on a simpler classification problem i.e. sorting particles into discrete categories then switch out the classification layer for the regression layer.
 
-The following is the model summary for the two output regression ResNet used in the final results. It can be seen the model has 505,410 trainable parameters.
+The following is the model summary for the two output regression ResNet used in the final results. This model has 505,410 trainable parameters.
 
 ```
 __________________________________________________________________________________________________
