@@ -6,11 +6,11 @@ I have learnt an immense amount over the course of the project both practically 
 
 - Spending dedicated time everyday working on an open ended and self directed project has taught me a lot about being resourceful. Often I would be completely lost on how to proceed and spent hours searching for a starting place. The volume of new machine learning papers is very high so I found that having a flow from high level summary at stack exchange and other forum posts as well as direction from the supervisor very important to obtain direction and find specific papers and articles that were critical reading.
 
-- I learned a lot about practical implementation of keras models, proper data generation, processing and data storage techniques in pandas and numpy. In particular, I leant a lot about modern neural networks like ResNet for both image and time series classification. 
+- I learned a lot about practical implementation of keras models, proper data generation, processing and data storage techniques in pandas and numpy. In particular, I leant a lot about modern neural networks like ResNet for both image and time series classification.
 
 - I learnt a lot about how to design a good workflow for model building. Specifically, I found out how important it is to have a good idea of the: *data generation -> data processing -> model training -> model output and analysis* pipeline before beginning the implementation. A lot of time on my project was spent recoding old systems that I had thrown together without knowing exactly where I was heading. If I had a good idea of my objectives and how I planned to implement from the start then I think I could have saved a lot time rewriting this code.
   
-- Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off of and get feedback. The supervisor was very important for feedback, giving direction and narrowing down which avenues were most important to pursue. 
+- Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off of and get feedback. The supervisor was very important for feedback, giving direction and narrowing down which avenues were most important to pursue.
   
 - Explaining the project at a variety of people at different knowledge levels (supervisors, group members, family and friends) helped me better understand how to communicate scientific/technical concepts to people at different levels of understanding.
 
@@ -24,7 +24,7 @@ The ultimate goal of the project was to develop a neural network which can take 
 
 An efficient means to estimate the radius or refractive index of a given trapped particle could be of a lot of value to optical tweezers researchers. For example, by allowing fast categorization of unknown particles or by allowing measurement of the properties of  difficult to measure particles just by their motion.
 
-## Method 
+## Method
 
 ### The Time Series Approach
 
@@ -58,7 +58,7 @@ The time series classification ResNet (the one used in [1]) is based upon 3 resi
 
 So far we have discussed only a classification model, the model for this project needs to be capable of performing regression as well. In the paper *A Comprehensive Analysis of Deep Regression* [6] found that simply replacing the final softmax layer of the image classification networks ResNEt and VGG with a fully connected linearly activation layer lead to good results for image regression. Following this result, the model for this project will be modified for regression simply by replacing the softmax classification layer with a linear regression layer. It should be noted that the models in [6] were first trained on the ImageNet classification problem before being modified for regression, since there is no real 'standard' dataset for time series classification the ResNet model used will not be pretrained. As a modification to the current method undertaken here it would be possible to pretrain on a simpler classification problem i.e. sorting particles into discrete categories then switch out the classification layer for the regression layer.
 
-The following is the model summary for the two output regression ResNet used in the final results. It can be seen the model has 505410 trainable parameters.
+The following is the model summary for the two output regression ResNet used in the final results. It can be seen the model has 505,410 trainable parameters.
 
 ```
 __________________________________________________________________________________________________
