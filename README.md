@@ -275,6 +275,14 @@ The results of the 500 epoch train did not show a huge amount of progress in val
 
 One way to overcome the overfitting problem is to increase the size of the training set
 
+| ![Validation 550 Epochs 20000, Targeted Points](Figures/ErrorPlotValidation20000.png) |
+|:--:|
+| *Plot of Validation Error 20000 Points, 500 Epochs of Training* |
+
+| ![Diagnostic 550 Epochs 20000 Points](Figures/Diagnostics20000.png) |
+|:--:|
+| *Plot of Diagnostics 20000 Points, 500 Epochs of Training* |
+
 - Tested on uniformly dist validation
 and saw significant overfitting.
 
