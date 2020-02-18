@@ -1,6 +1,16 @@
 # Deep Regression for Properties of Particles in Optical Tweezers
 
-## What I learned
+## Summary
+
+### What worked well?
+
+I think that the time series classification/regression approach worked well and has a lot of potential. For regression of radius and refractive index my best validation mean absolute percentage errors are approaching ~1.6 and my absolute error is approaching ~0.0130. I haven't really done any fiddling with the model so there is room for improvement by tweaking things like architecture or model depth to improve this result. The model weights are highly transferable too so I think there is potential for fine tuning on experimental data.
+
+### What didn't work well?
+
+Even on my best model runs there seems to be a lot of overfitting which probably means that there needs to be more architecture tweaking or I have hit a lower bound on useful information to be gleaned (I doubt this option). I also briefly tried using a Multi Layer Perceptron (MLP) on the force and position data and that didn't really seem to be very successful.
+
+### What did I learn?
 
 I have learnt an immense amount over the course of the project both practically and in 'soft skills' such as:
 
@@ -18,7 +28,9 @@ The project involved simulation of data using a neural network, statistical anal
 
 ## Introduction to the problem
 
-- Optical Tweezers.
+Optical tweezers are a laser and microscope based method of trapping very small particles. They are capable of  Throught the use of 
+The precise meanns by which the particle is trapped depends on the size of the particle.
+
 
 The ultimate goal of the project was to develop a neural network which can take force and position data from a trapped and predict the radius and refractive index of the particle. The project is building off previous work by the supervisor (Isaac Lenton) in which a 5 degree of freedom fully connected neural network used $(x,y,z)$ position, radius and refractive index to predict the forces on a spherical particle. This network allows simulation of the motion of the particle much faster than that of analytical methods.
 
@@ -212,9 +224,6 @@ Coverage is very even in the validation dataset because no points are taken for 
 
 ## Results
 
-- Breakthrough in using multiple force axes
-To help with
-
 ### Preliminary Testing and Iterative Generation
 
 The first step was to do some short preliminary runs and test the iterative method for building up the dataset. The base dataset 15000 points distributed in a 40 by 40 grid (see data section for details) covering the space $n = (1.5, 1.7)$ and $r = (0.4, 0.6)$. A preliminary model (model A) was trained for 100 epochs on this dataset as a baseline. The error from this training was then inspected to diagnose 'problem' areas. In these areas more points will be added. The results of this run are shown below:
@@ -244,13 +253,11 @@ After building up this augmented dataset it was tested in two ways: 1. by runnin
 
 Two caveats should be made about the final statistics 1. Selecting for more difficult points to be included in the dataset will necessarily raise error. 2. Initialization of A and C are random so results will vary even without differences in the datasets.
 
- For these reasons I will focus on the error plots rather than the final statistics. The changes in the error in the areas where more points were added from model A to model B are small, with maybe some slight dimming of error over the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). On the other hand, error over problem spots in model C seemed to increase, although this is likely due to the initialization of the model.
-
-Overall the iterative data generation method is slightly disappointing, very little change in performance between the augmented dataset and the original for an increase in training cost. Of course after more epochs perhaps greater differences could be seen between the two datasets and more reliable results could be obtained by running the experiment a few times and averaging the performances of each run. Another possibility is that these high error regions are simply inherent to the problem and are simply hard points for the model to classify or there were just not enough added points to justify.
+The changes in the error in the areas where more points were added from model A to model B are small, with maybe some slight dimming of error over the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). However, the overall validation error significantly decreases in the 100 extra epochs of training which suggests that there could be some value in the iterative generation method. On the other hand, error over problem spots in model C seemed to increase as well as the overall error but this is could be due to a poor random initialization of the model. Overall the iterative data generation method appeared to have potential and it seemed worthwhile to include it in further testing with longer training times.
 
 ### Full Runs
 
-The next stage was running a 500 epoch train on the 15000 point dataset  Double the number of points and re run
+The next stage was running a longer 500 epoch train  on the 15000 point dataset. The error plots on the validation and training sets and training statistic diagnostics over time are shown below. The validation loss at 500 epochs was 0.0004 and the validation mean absolute percentage error was 1.745.
 
 | ![Validation 500 Epochs, 15000 Points](Figures/ErrorPlotValidation15000.png) |
 |:--:|
@@ -264,6 +271,11 @@ The next stage was running a 500 epoch train on the 15000 point dataset  Double 
 |:--:|
 | *Diagnostic Plot 15000 Points, 500 Epochs of Training* |
 
+The results of the 500 epoch train did not show a huge amount of progress in validation error and validation loss from the 100 epoch preliminary run. The main difference from the first 100 epochs which could be seen in validation set in the diagnostics plot is a 'flattening out' in the loss and errors over time. In the training set, on the other hand, loss and error are continually decreasing, sometimes in large jumps. This suggested an overfitting problem, that is, the model is simply starting learn the training set rather than the underlying relationship in the data. Learning the training set in this way is not improving model performance in a general setting as the particulars of the training set will not carry over to other unseen datasets.
+
+One way to overcome the overfitting problem is to increase the size of the training set
+
+- Tested on uniformly dist validation
 and saw significant overfitting.
 
 Google colab 300 epoch with 20000
@@ -282,14 +294,17 @@ Google colab 300 epoch with 20000
 
 | Model | Validation Loss | Validation MAE | Validation MAPE|
 |:--:| :---: | :---: | :---: |
-| 15000 Points | 0.0004 | 0.150 | 1.745 |
+| 15000 Points | 0.0004 | 0.0150 | 1.7645 |
+| 20000 Points, Targeted | 0.0004 | 0.0145 | 1.6917 | 
+| 30000 Points | 0.0003 | 0.0138 | 1.6312 |
 
+Results are good
 
 ## Discussion
 - Where to go from here.
   - Experimental data
-  - Longer simulations.
   - Multiple runs and averaging performance.
+- Automated data augmentation
   
 ## Main model progress
 
@@ -304,8 +319,8 @@ Google colab 300 epoch with 20000
 - Running ResNet results in overfitting, more data is added.
     - Adding more data is not the most satisfying solution to overfitting 
 - Why ResNet?
-- Transfer learning from the 5 class to the ten resulted in 98.5% (best) validation accuracy within 20 epochs. 
-    - Increased number of training points 
+- Transfer learning from the 5 class to the ten resulted in 98.5% (best) validation accuracy within 20 epochs.
+    - Increased number of training points
 - Close to 0.1 starts getting dispersed positions.
 - Changing radius appears to alter the equilibrium position.
 

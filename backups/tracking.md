@@ -30,4 +30,7 @@
   - 500 epochs training on the 15000 point dataset
 
 - resnet3-nr-regression-xyz-4
-  - 500 epochs training on the 30000 point dataset
+  - 500+some epochs training on the 30000 point dataset
+
+- resnet3-nr-regression-xyz-5
+  - 550 epochs on 20000 point augmented dataset.
