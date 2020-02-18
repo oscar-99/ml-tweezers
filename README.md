@@ -223,11 +223,11 @@ The first step was to do some short preliminary runs and test the iterative meth
 |:--:|
 | *Plot of Validation Error Model A* |
 
+(*Note: the 2d error plots display the average error for each point in the 40 by 40 grid.*)
+
 The first of the problem areas is the large error 'bar' in the region of n = (1.5, 1.525) and r = (0.4, 0.6) of the radius error plot. 2000 points were added spread over this region in a 5 by 40 grid. The next is the spot of high error in both plots at n = (1.625, 1.675) and r = (0.560, 0.6), 1000 points were distributed to this area in a 10 by 8 grid. Next are the areas of error in radius of the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). 1000 points were added to each of these regions in a grid of 6 by 7 and 6 by 6 respectively.
 
-After building up this augmented dataset it was tested in two ways: 1. by running 100 further epochs on the new dataset (Model B) 2. By starting again and repeating the first 100 epochs fresh on the new dataset (Model C).
-
-The error plot for models B and C are shown below as well as a table final validation stats for each model:
+After building up this augmented dataset it was tested in two ways: 1. by running 100 further epochs on the new dataset (Model B) 2. By starting again and repeating the first 100 epochs fresh on the new dataset (Model C). The error plot for models B and C are shown below as well as a table final validation stats for each model:
 | ![Model B Validation Error](Figures/ErrorPlotValidation200E.png) |
 |:--:|
 | *Plot of Validation Error Model B* |
@@ -242,11 +242,29 @@ The error plot for models B and C are shown below as well as a table final valid
 | B | 0.0004 | 0.0145 | 1.7013 |
 | C | 0.0006 | 0.0192 | 2.1639 |
 
-So on so on
+Two caveats should be made about the final statistics 1. Selecting for more difficult points to be included in the dataset will necessarily raise error. 2. Initialization of A and C are random so results will vary even without differences in the datasets.
 
-A seperate 'validation' dataset was also created with 10000 points. This dataset will allow easier analysis of error by ensuring that the space radii and refractive indices is covered.
+ For these reasons I will focus on the error plots rather than the final statistics. The changes in the error in the areas where more points were added from model A to model B are small, with maybe some slight dimming of error over the regions n = (1.530, 1.560) and r = (0.465, 0.500) and r = (0.545, 0.575). On the other hand, error over problem spots in model C seemed to increase, although this is likely due to the initialization of the model.
 
-Ran a 500 epoch train and saw significant overfitting. Double the number of points and re run
+Overall the iterative data generation method is slightly disappointing, very little change in performance between the augmented dataset and the original for an increase in training cost. Of course after more epochs perhaps greater differences could be seen between the two datasets and more reliable results could be obtained by running the experiment a few times and averaging the performances of each run. Another possibility is that these high error regions are simply inherent to the problem and are simply hard points for the model to classify or there were just not enough added points to justify.
+
+### Full Runs
+
+The next stage was running a 500 epoch train on the 15000 point dataset  Double the number of points and re run
+
+| ![Validation 500 Epochs, 15000 Points](Figures/ErrorPlotValidation15000.png) |
+|:--:|
+| *Plot of Validation Error 15000 Points, 500 Epochs of Training* |
+
+| ![Training 500 Epochs, 15000 Points](Figures/ErrorPlotTraining15000.png)|
+|:--:|
+| *Plot of Training Error 15000 Points, 500 Epochs of Training* |
+
+| ![Diagnostics 500 Epochs, 15000 Points](Figures/Diagnostics15000.png)|
+|:--:|
+| *Diagnostic Plot 15000 Points, 500 Epochs of Training* |
+
+and saw significant overfitting.
 
 Google colab 300 epoch with 20000
 
@@ -261,6 +279,11 @@ Google colab 300 epoch with 20000
 | ![Validation 500 Epochs](Figures/Diagnostics30000.png)|
 |:--:|
 | *Diagnostic Plot 30000 Points, 500 Epochs of Training* |
+
+| Model | Validation Loss | Validation MAE | Validation MAPE|
+|:--:| :---: | :---: | :---: |
+| 15000 Points | 0.0004 | 0.150 | 1.745 |
+
 
 ## Discussion
 - Where to go from here.

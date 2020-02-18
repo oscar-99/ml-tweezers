@@ -360,7 +360,7 @@ def classify_error_plot(model, testing_data, testing_label):
     plt.title("Test Prediction Breakdown")
 
 
-def error_plot_2d(model, data, labels, x_tiles, y_tiles, data_type):
+def error_plot_2d(model, data, labels, x_tiles, y_tiles):
     '''
     A function to visualize the error for 2d regression.
 
@@ -400,7 +400,6 @@ def error_plot_2d(model, data, labels, x_tiles, y_tiles, data_type):
     bounding_box = [float(x_labels[0]) , float(x_labels[-1]), float(y_labels[0]), float(y_labels[-1])]
 
     plt.figure()
-    plt.suptitle("{} Dataset Error".format(data_type))
     plt.subplot(1, 2, 1)
     plt.title("Percentage Error in Refractive Index.")
     plt.imshow(n_bins.statistic, cmap='viridis', origin='lower', extent=bounding_box)
@@ -451,7 +450,6 @@ def data_distribution_plot(file, n_tiles, r_tiles):
         cbar = plt.colorbar()
         cbar.ax.set_ylabel('Count')
 
-    plt.title("Plot of Data Distribution")
     print("Total Point Count: {}".format(n.size))
     plt.show()
     

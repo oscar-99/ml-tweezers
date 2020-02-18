@@ -28,8 +28,8 @@ axes = [0, 1, 2] # x, y and z axis
 epochs = 5
 
 # Process data.
-training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 1000)
-testing_data, testing_labels = ts_2d_data_prep('cont-data-nr-01-1-test', axes, 1000)
+training_data, training_labels = ts_2d_data_prep('cont-data-nr-01-1-train', axes, 'all')
+testing_data, testing_labels = ts_2d_data_prep('cont-data-nr-01-1-test', axes, 'all')
 validation_testing_data, validation_testing_labels = ts_2d_data_prep('validation-test', axes, 'all')
 
 # Build and train model
@@ -37,12 +37,12 @@ input_shape = training_data.shape[1:] # Time series length
 model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-4")
 model.build_regression_output(2) # output is n, r
 # model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
-model.evaluate_regression(testing_data, testing_labels)
+# model.evaluate_regression(testing_data, testing_labels)
 model.evaluate_regression(validation_testing_data, validation_testing_labels)
 
 tiles = 40
 # Diagnostics
-error_plot_2d(model, validation_testing_data, validation_testing_labels, tiles, tiles, 'Validation')
-error_plot_2d(model, training_data, training_labels, tiles, tiles, "Training")
+error_plot_2d(model, validation_testing_data, validation_testing_labels, tiles, tiles)
+error_plot_2d(model, training_data, training_labels, tiles, tiles)
 history_plot_regression(model)
 
