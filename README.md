@@ -36,9 +36,8 @@ Optical tweezers are a poweful laser and microscope based method of trapping and
 |:--:|
 |*Focused Optical Trap*|
 
-https://blocklab.stanford.edu/optical_tweezers.html
+(*Image Credit: Koebler, CC BY 3.0, unfocused: https://commons.wikimedia.org/w/index.php?curid=15083861, focused: https://commons.wikimedia.org/w/index.php?curid=15083883*)
 
-(*See* https://en.wikipedia.org/wiki/Optical_tweezers)
 
 The ultimate goal of the project was to develop a neural network which can take force and position data from a trapped and predict the radius and refractive index of the particle. The project is building off previous work by the supervisor (Isaac Lenton) in which a 5 degree of freedom fully connected neural network used $(x,y,z)$ position, radius and refractive index to predict the forces on a spherical particle. This network allows simulation of the motion of the particle much faster than that of analytical methods.
 
