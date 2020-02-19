@@ -4,7 +4,7 @@
 
 ### What worked well?
 
-I think that the time series classification/regression approach worked well and has a lot of potential. For regression of radius and refractive index my best validation mean absolute percentage errors are approaching ~1.6 and my absolute error is approaching ~0.0130. I haven't really done any fiddling with the model so there is room for improvement by tweaking things like architecture or model depth to improve this result. The model weights are highly transferable too so I think there is potential for fine tuning on experimental data.
+I think that the time series classification/regression approach worked well and has a lot of potential. For regression of radius and refractive index my best validation mean absolute percentage errors are approaching ~1.6 and my absolute error is approaching ~0.013. I haven't really done any fiddling with the model so there is room for improvement by tweaking things like architecture or model depth to improve this result. The model weights are highly transferable too so I think there is potential for fine tuning on experimental data.
 
 ### What didn't work well?
 
