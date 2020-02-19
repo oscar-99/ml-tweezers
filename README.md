@@ -26,7 +26,7 @@ I have learnt an immense amount over the course of the project both practically 
 
 ## Introduction to the problem
 
-Optical tweezers are a poweful laser and microscope based method of trapping and manipulating very microscopic particles such as viruses, bacteria, micronewton scale particles and DNA [7]. They are capable of applying extremely precise forces (piconewton range) and very making precise measurements of positions (nanometre range). The precise means by which the optical tweezers function depends on the size of the particle relative to the wavelength of light. When the diameter of the particle is significantly larger than the wavelength of the light a ray optics explanation can be used.
+Optical tweezers are a poweful laser and microscope based method of trapping and manipulating very microscopic particles such as viruses, bacteria, micronewton scale particles and DNA [7]. They are capable of applying extremely precise forces (piconewton range) and very making precise measurements of positions (nanometre range). The precise means by which the optical tweezers function depends on the size of the particle relative to the wavelength of light. When the diameter of the particle is significantly larger than the wavelength of the light ray optics explains the behaviour.
 
 |![Unfocused](/Figures/Optical_trap_unfocused.png)|
 |:--:|
