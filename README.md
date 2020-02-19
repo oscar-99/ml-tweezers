@@ -14,9 +14,9 @@ Even on my best model runs there seems to be a lot of overfitting which probably
 
 I have learnt an immense amount over the course of the project both practically and in 'soft skills' such as:
 
-- Spending dedicated time everyday working on an open ended and self directed project has taught me a lot about being resourceful. Often I would be completely lost on how to proceed and spent hours searching for a starting place. The volume of new machine learning papers is very high so I found that having a flow from high level summary at stack exchange and other forum posts as well as direction from the supervisor very important to obtain direction and find specific papers and articles that were critical reading.
+- Spending dedicated time everyday working on an open ended and self directed project has taught me a lot about being resourceful. There is a huge volume of machine learning papers coming out every single day so it was important to use summarising posts, work with advisors and sift efficiently throught material to obtain the highest value information.
 
-- I learned a lot about practical implementation of keras models, proper data generation, processing and data storage techniques in pandas and numpy. In particular, I leant a lot about modern neural networks like ResNet for both image and time series classification.
+- I learned a lot about practical implementation of keras models, proper data generation, processing and data storage techniques in pandas, keras and numpy. In particular, I leant a lot about modern neural networks like ResNet for both image and time series classification.
 
 - I learnt a lot about how to design a good workflow for model building. Specifically, I found out how important it is to have a good idea of the: *data generation -> data processing -> model training -> model output and analysis* pipeline before beginning the implementation. A lot of time on my project was spent recoding old systems that I had thrown together without knowing exactly where I was heading. If I had a good idea of my objectives and how I planned to implement from the start then I think I could have saved a lot time rewriting this code.
   
@@ -372,23 +372,6 @@ For given model add -history.csv at the end.
   - Work on y axis and polarisation stuff.
   - Nail down radius and n ranges where well behaved.
 
-## 28/1/2020 - email
-Hey Lachlan,
-
-I have some figures you can accuracy/loss plot figures you can use from training my ResNet time series model. I will give you a bit of background here so you can have some idea whether or not you want to include this stuff, we can talk in more detail if you want tomorrow. Also if you don't want to include any of this stuff that is fine too, it is totally up to you.
-
-The basic idea was to generate 5000 force time series, each 1000 long and with 3 force axes, corresponding to different refractive indices uniformly distributed from 1.4 to 1.75 and a constant radius of 0.6. The model is then fed the time series and spits out a continuous (regression) output targeting the refractive index that generated the time series. 
-
-The first Image is of the validation loss, error and percentage error as model trains. The best it ended up getting over the 600 epochs was about ~0.75% error which I think is ok but can certainly get better with tweaking and more training. 
-
-The second image is the error and percentage error by the refractive index, the aim is to see where 'problem' refractive indices are (i.e. ones that the model tends to miss). To me the distribution of errors over the value of refractive index looks fairly uniform so maybe not a lot of info to be gleaned. 
-
-I am hoping to next work on regressing both radius and refractive index. This is where I will apply a lot of the fine tuning ideas that we have come up with. 
-
-Regards,
-
-Oscar Smee
-Images: regression_n_loss_accuracy, regression_n_accuracyvsn
 
 ## 29/1/2020
 - So Far:
