@@ -297,40 +297,17 @@ A simple way to overcome the overfitting problem is to increase the size of the 
 
 Training on the larger datasets lowered validation loss and error; however, the gap between performance on the training and validation sets showed that overfitting was a significant problem in these larger datasets. It also seemed that changes to validation error from the larger dataset were becoming more marginal i.e. a doubling of the dataset size resulted in only a drop of 0.13 percentage points in validation error. The model's performance 20000 point dataset is more impressive from an efficiency perspective, achieving a drop of ~0.7 percentage points for only 5000 more points. 
 
-Inspecting The 20000 point dataset error plot, it does not appear that error is particularly
+Inspecting The 20000 point dataset error plot, it does not visually appear that error is particularly lower over the areas targeted with extra points in comparison to the 30000 point dataset or even the 15000 point dataset. This does not imply that there is no value in targeting points high error areas, simply that the change cannot be seen visually; there likely is some difference which explains the change in error.
 
-## Discussion
+## Where to go from here.
 
-### Cause of high error areas.
+The effects of increased dataset size becoming more marginal and the fact overfitting is still a problem suggests that there is probably not much value in expanding the training dataset further, particularly if the model is going to be fine tuned on a much smaller experimental dataset at some point. Instead the model needs to be made more robust to overfitting through tweaks in architecture like dropout and other regularisation or even trying another high performing time series classification model like VGG [1]. 
 
-### Where to go from here.
-The effects of increased dataset size becoming more marginal and the fact overfitting is still a problem suggests that there is probably not much value in expanding the training dataset, particularly if the model is going to be used on an experimental dataset at some point.
+The results so far suggest that it would be worthwhile to work on the targeted data point selection method. A possible expansion would be automatically detecting areas where mean error rose above a certain level to make targeting easier as well as a way to track the high mean error areas over time to better be able see the difference made by the additional points.
 
+Currently the training data covers a fairly small area of the total feasible radii and refractive indices. Testing the performance of the model over a larger space would be worthwhile to test how important the choice of space was i.e. if the performance seen holds in other areas of the space. Transfer learning using a model pretrained on the smaller area could be used for this.
 
-
-- Where to go from here.
-  - Experimental data
-  - Multiple runs and averaging performance.
-  - More points included in the dataset
-- Automated data augmentation
-  
-## Main model progress
-
-# Summary
-
-- Got simulation working to generate some data using trained 5 degree of freedom model
-- Reading up on Neural Networks particularly convolutional neural networks and image classification.  
-- Built a simple MLP model to help learn how keras works and how to process the generated data.
-- Shifted reading focus to time series classification/regression.
-- Reading leads to ResNet model and Deep learning. Begin process of building and training ResNet.
-- Ran on GPU for huge speedup
-- Running ResNet results in overfitting, more data is added.
-    - Adding more data is not the most satisfying solution to overfitting 
-- Why ResNet?
-- Transfer learning from the 5 class to the ten resulted in 98.5% (best) validation accuracy within 20 epochs.
-    - Increased number of training points
-- Close to 0.1 starts getting dispersed positions.
-- Changing radius appears to alter the equilibrium position.
+Fine tuning on an experimental dataset would be very interesting and would probably allow for tweaking of simulated datasets (i.e. sampling rate and observation times) for generating a better training set. This would also give a better idea of the feasibilty of the model on real life data.
 
 # References
 1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
