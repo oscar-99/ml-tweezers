@@ -273,28 +273,20 @@ The next stage was running a longer 500 epoch train  on the 15000 point dataset.
 
 The results of the 500 epoch train did not show a huge amount of progress in validation error and validation loss from the 100 epoch preliminary run. The main difference from the first 100 epochs which could be seen in validation set in the diagnostics plot is a 'flattening out' in the loss and errors over time. In the training set, on the other hand, loss and error are continually decreasing, sometimes in large jumps. This suggested an overfitting problem, that is, the model is simply starting learn the training set rather than the underlying relationship in the data. Learning the training set in this way is not improving model performance in a general setting as the particulars of the training set will not carry over to other unseen datasets.
 
-One way to overcome the overfitting problem is to increase the size of the training set
+A simple way to overcome the overfitting problem is to increase the size of the training set. Hence the next two full runs will be on the 20000 point targeted dataset generated in preliminary testing and a 30000 point 40 by 40 grid dataset (essentially a doubling the 15000 point dataset). The error plots and diagnostic plots as well as a comparison table of the model trained on each dataset are shown below. (*Note: the 30000 point model ran for ~50 epochs too long due to user error so epochs for 20000 point model were increased by 50*).
 
 | ![Validation 550 Epochs 20000, Targeted Points](Figures/ErrorPlotValidation20000.png) |
 |:--:|
-| *Plot of Validation Error 20000 Points, 500 Epochs of Training* |
-
-| ![Diagnostic 550 Epochs 20000 Points](Figures/Diagnostics20000.png) |
-|:--:|
-| *Plot of Diagnostics 20000 Points, 500 Epochs of Training* |
-
-- Tested on uniformly dist validation
-and saw significant overfitting.
-
-Google colab 300 epoch with 20000
+| *Plot of Validation Error 20000 Targeted Points, 500 Epochs of Training* |
 
 | ![Validation 500 Epochs 30000 Points](Figures/ErrorPlotValidation30000.png) |
 |:--:|
 | *Plot of Validation Error 30000 Points, 500 Epochs of Training* |
 
-| ![Training 500 Epochs 30000 Points](Figures/ErrorPlotTraining30000.png)|
+| ![Diagnostic 550 Epochs 20000 Points](Figures/Diagnostics20000.png) |
 |:--:|
-| *Plot of Training Error 30000 Points, 500 Epochs of Training* |
+| *Plot of Diagnostics 20000 Points, 500 Epochs of Training* |
+
 
 | ![Validation 500 Epochs](Figures/Diagnostics30000.png)|
 |:--:|
