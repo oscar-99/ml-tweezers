@@ -263,10 +263,6 @@ The next stage was running a longer 500 epoch train  on the 15000 point dataset.
 |:--:|
 | *Plot of Validation Error 15000 Points, 500 Epochs of Training* |
 
-| ![Training 500 Epochs, 15000 Points](Figures/ErrorPlotTraining15000.png)|
-|:--:|
-| *Plot of Training Error 15000 Points, 500 Epochs of Training* |
-
 | ![Diagnostics 500 Epochs, 15000 Points](Figures/Diagnostics15000.png)|
 |:--:|
 | *Diagnostic Plot 15000 Points, 500 Epochs of Training* |
@@ -298,12 +294,24 @@ A simple way to overcome the overfitting problem is to increase the size of the 
 | 20000 Points, Targeted | 0.0004 | 0.0145 | 1.6917 | 
 | 30000 Points | 0.0003 | 0.0138 | 1.6312 |
 
-Results are good
+
+Training on the larger datasets lowered validation loss and error; however, the gap between performance on the training and validation sets showed that overfitting was a significant problem in these larger datasets. It also seemed that changes to validation error from the larger dataset were becoming more marginal i.e. a doubling of the dataset size resulted in only a drop of 0.13 percentage points in validation error. The model's performance 20000 point dataset is more impressive from an efficiency perspective, achieving a drop of ~0.7 percentage points for only 5000 more points. 
+
+Inspecting The 20000 point dataset error plot, it does not appear that error is particularly
 
 ## Discussion
+
+### Cause of high error areas.
+
+### Where to go from here.
+The effects of increased dataset size becoming more marginal and the fact overfitting is still a problem suggests that there is probably not much value in expanding the training dataset, particularly if the model is going to be used on an experimental dataset at some point.
+
+
+
 - Where to go from here.
   - Experimental data
   - Multiple runs and averaging performance.
+  - More points included in the dataset
 - Automated data augmentation
   
 ## Main model progress
