@@ -16,13 +16,13 @@ I have learnt an immense amount over the course of the project both practically 
 
 - Spending dedicated time everyday working on an open ended and self directed project has taught me a lot about being resourceful. There is a huge volume of machine learning papers coming out every single day so it was important to use summarising posts, work with advisors and sift efficiently throught material to obtain the highest value information.
 
-- I learned a lot about practical implementation of keras models, proper data generation, processing and data storage techniques in pandas, keras and numpy. In particular, I leant a lot about modern neural networks like ResNet for both image and time series classification.
+- I learned a lot about practical implementation and theory of modern neural networks like ResNet in keras, proper data generation, processing and storage techniques in pandas and numpy as well as summarising and visualising data and results in matplotlib. 
 
 - I learnt a lot about how to design a good workflow for model building. Specifically, I found out how important it is to have a good idea of the: *data generation -> data processing -> model training -> model output and analysis* pipeline before beginning the implementation. A lot of time on my project was spent recoding old systems that I had thrown together without knowing exactly where I was heading. If I had a good idea of my objectives and how I planned to implement from the start then I think I could have saved a lot time rewriting this code.
   
-- Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off of and get feedback. The supervisor was very important for feedback from, giving direction and narrowing down which avenues were most important to pursue.
+- Working well as a team. Working together with group partners and the supervisor was super important to me. I found group partners, even if they were working on different approaches to the problem were very important to bounce ideas off and get feedback from. The supervisor was very important for feedback from, giving direction and narrowing down which avenues were most important to pursue.
   
-- Explaining the project at a variety of people at different knowledge levels (supervisors, group members, family and friends) helped me better understand how to communicate scientific/technical concepts to people at different levels of understanding.
+- Explaining the project to a variety of people at different knowledge levels (supervisors, group members, family and friends) helped me better understand how to communicate scientific/technical concepts to people at different levels of understanding.
 
 ## Introduction to the problem
 
