@@ -1,4 +1,4 @@
-# Deep Regression for Properties of Particles in Optical Tweezers
+# Deep Learning of Properties of Particles in Optical Tweezers
 
 ## Summary
 
