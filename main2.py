@@ -34,7 +34,7 @@ validation_testing_data, validation_testing_labels = ts_2d_data_prep('validation
 
 # Build and train model
 input_shape = training_data.shape[1:] # Time series length
-model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-4")
+model = ResNetTS(input_shape, "resnet3-nr-regression-xyz-5")
 model.build_regression_output(2) # output is n, r
 # model.fit(training_data, training_labels, testing_data, testing_labels, epochs)
 # model.evaluate_regression(testing_data, testing_labels)

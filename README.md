@@ -26,9 +26,17 @@ I have learnt an immense amount over the course of the project both practically 
 
 ## Introduction to the problem
 
-Optical tweezers are a laser and microscope based method of trapping very small particles. They are capable of  Throught the use of 
-The precise meanns by which the particle is trapped depends on the size of the particle.
-- Highly accurate measurments
+Optical tweezers are a poweful laser and microscope based method of trapping and manipulating very microscopic particles such as viruses, bacteria, micronewton scale particles and DNA [7]. They are capable of applying extremely precise forces (piconewton range) and very making precise measurements of positions (nanometre range). The precise means by which the optical tweezers function depends on the size of the particle relative to the wavelength of light. When the diameter of the particle is significantly larger than the wavelength of the light ray optics explains the behaviour.
+
+|![Unfocused](/Figures/Optical_trap_unfocused.png)|
+|:--:|
+|*Unfocused Optical Trap*|
+
+|![focused](/Figures/Optical_trap_focused.png)
+|:--:|
+|*Focused Optical Trap*|
+
+(*Image Credit: Koebler, CC BY 3.0, unfocused: https://commons.wikimedia.org/w/index.php?curid=15083861, focused: https://commons.wikimedia.org/w/index.php?curid=15083883*)
 
 
 The ultimate goal of the project was to develop a neural network which can take force and position data from a trapped and predict the radius and refractive index of the particle. The project is building off previous work by the supervisor (Isaac Lenton) in which a 5 degree of freedom fully connected neural network used $(x,y,z)$ position, radius and refractive index to predict the forces on a spherical particle. This network allows simulation of the motion of the particle much faster than that of analytical methods.
@@ -315,6 +323,7 @@ Fine tuning on an experimental dataset would be very interesting and would proba
 4. https://towardsdatascience.com/how-to-use-convolutional-neural-networks-for-time-series-classification-56b1b0a07a57
 5. resnet - https://arxiv.org/abs/1512.03385
 6. deep regression  - https://arxiv.org/pdf/1803.08450.pdf
+7. https://blocklab.stanford.edu/optical_tweezers.html
 
 
 
