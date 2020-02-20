@@ -26,18 +26,24 @@ I have learnt an immense amount over the course of the project both practically 
 
 ## Introduction to the problem
 
-Optical tweezers are a poweful laser and microscope based method of trapping and manipulating very microscopic particles such as viruses, bacteria, micronewton scale particles and DNA [7]. They are capable of applying extremely precise forces (piconewton range) and very making precise measurements of positions (nanometre range). The precise means by which the optical tweezers function depends on the size of the particle relative to the wavelength of light. When the diameter of the particle is significantly larger than the wavelength of the light ray optics explains the behaviour.
+Optical tweezers are a poweful laser and microscope based method of trapping and manipulating microscopic particles such as viruses, bacteria, micrometre to nanometre scale particles and DNA [7]. They are capable of applying extremely precise forces (piconewton range) and very making precise measurements of positions (nanometre range). The precise means by which the optical tweezers function depends on the size of the particle relative to the wavelength of light. When the diameter of the particle is significantly larger than the wavelength of the light ray optics are a sufficient explanation.
+
+The trapping laser will have greater intensity in the centre of the beam in comparison to the edges (known as a gaussian beam) like in the first diagram below. This intensity difference will result in a restorative force towards the centre in the x and y directions (note: by convention the z axis is taken to be in the direction of the beam). This restorative force is due refraction of the light upon it's entry into the particle: conservation of momentum dictates that the change in momentum of the light due to refraction must impart a force on the particle. This force comes in two parts, a scattering force in the incident direction (essentially force imparted from the particle's impact) and a gradient force perpendicular to the scattering force and away from direction of the bending of the beam. The sum of these two forces is shown for beams 1 and 2 as $F_1$ and $F_2$. When the particle is in the centre of the trap, as in the left panel, the gradient forces cancel and there is no net force in the x-y direction. However, if the particle leaves the centre of the beam, as in the right panel, the greater intensity of the beam in the centre will result in a larger gradient force on the side closest to the centre of the beam and hence a net force towards the centre of the beam. This results in trapping in the x-y axes [8].
 
 |![Unfocused](/Figures/Optical_trap_unfocused.png)|
 |:--:|
 |*Unfocused Optical Trap*|
 
+The particle is trapped in the z direction by focusing the beam, as shown in the diagram below. If the particle is below the focus of the beam, as in the left panel, there will be a net force towards the centre of the particle due to contributions from the scattering and gradient forces. If the particle is above the focus, as in the right panel the gradient force, perpendicular to the incident beam, will have a compenent in the z axis towards the focus. So long as the z component of this gradient force is greater than the z component of the scattering force there will be net force towards the focus of the beam resulting in z axis trapping. [8]
+
 |![focused](/Figures/Optical_trap_focused.png)
 |:--:|
 |*Focused Optical Trap*|
 
-(*Image Credit: Koebler, CC BY 3.0, unfocused: https://commons.wikimedia.org/w/index.php?curid=15083861, focused: https://commons.wikimedia.org/w/index.php?curid=15083883*)
+(*Image Credit: Koebler, CC BY 3.0, Unfocused: https://commons.wikimedia.org/w/index.php?curid=15083861, Focused: https://commons.wikimedia.org/w/index.php?curid=15083883*)
 
+The end result of these restorative forces is an approximately hookean spring behaviour in each of the three axes so long as the particle remains close to the centre of the trap. In reality the particle is not held neatly in the centre of the trap as thermal fluctuation leads to the particle exploring a volume of space around the centre of the trap. 
+The behaviour of the particle depends on its properties, such as: the shape and size (dealing with exclussively spheres in the project so radius will suffice as a measurement) and refractive index as well as many aspects of the trap setup including (but not limited to): the temperature, power of the laser, the wavelength of the light and microscope setup.
 
 The ultimate goal of the project was to develop a neural network which can take force and position data from a trapped and predict the radius and refractive index of the particle. The project is building off previous work by the supervisor (Isaac Lenton) in which a 5 degree of freedom fully connected neural network used $(x,y,z)$ position, radius and refractive index to predict the forces on a spherical particle. This network allows simulation of the motion of the particle much faster than that of analytical methods.
 
@@ -324,6 +330,7 @@ Fine tuning on an experimental dataset would be very interesting and would proba
 5. resnet - https://arxiv.org/abs/1512.03385
 6. deep regression  - https://arxiv.org/pdf/1803.08450.pdf
 7. https://blocklab.stanford.edu/optical_tweezers.html
+8. https://neurophysics.ucsd.edu/courses/physics_173_273/optical_trap_guide.pdf
 
 
 
