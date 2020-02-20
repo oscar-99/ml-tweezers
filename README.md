@@ -4,11 +4,11 @@
 
 ### What worked well?
 
-I think that the time series classification/regression approach worked well and has a lot of potential. For regression of radius and refractive index my best validation mean absolute percentage errors are approaching ~1.6 and my absolute error is approaching ~0.013. I haven't really done any fiddling with the model so there is room for improvement by tweaking things like architecture or model depth to improve this result. The model weights are highly transferable too so I think there is potential for fine tuning on experimental data.
+I think that the time series classification/regression approach worked well and has a lot of potential. For regression of radius and refractive index, my best validation mean absolute percentage errors are approaching ~1.6 and my absolute error is approaching ~0.013. I haven't really done any fiddling with the model so there is room for improvement by tweaking things like architecture or model depth to improve this result. The model weights are highly transferable too so I think there is potential for fine tuning on experimental data.
 
 ### What didn't work well?
 
-Even on my best model runs there seems to be a lot of overfitting which probably means that there needs to be more architecture tweaking or I have hit a lower bound on useful information to be gleaned (I doubt this option). I also briefly tried using a Multi Layer Perceptron (MLP) on the force and position data and that didn't really seem to be very successful.
+Even on my best model runs there seems to be a lot of overfitting which probably means that there needs to be more architecture tweaking or perhaps I have hit a lower bound on useful information to be gleaned. I also briefly tried using a Multi Layer Perceptron (MLP) on the force and position data and that didn't really seem to be very successful.
 
 ### What did I learn?
 
@@ -177,7 +177,7 @@ Non-trainable params: 2,560
 
 ### Simulation
 
-To generate enough training data a simulation method was used rather than physically measuring data from trapped particles. The data was simulated using the previously mentioned 5 degree of freedom (5-DOF) fully connected neural network which takes in $(x,y,z)$ position, radius and refractive index and outputs forces. This network had been trained on a range of radii from ~0.1-1 micron and a range of refractive indices ~1.4-2.
+To generate enough training data a simulation method was used rather than physically measuring data from trapped particles. The data was simulated using the previously mentioned 5 degree of freedom (5-DOF) fully connected neural network which takes in $$(x,y,z)$$ position, radius and refractive index and outputs forces. This network had been trained on a range of radii from ~0.1-1 micron and a range of refractive indices ~1.4-2.
 
 The simulation worked by computing the positions and forces of the particle in discrete time steps. The particle was initialized at the origin and at each time step the $(x,y,z)$ position of the particle was inputted into the 5-DOF network which outputted the value of the deterministic forces due to the trap in each direction $(f_x, f_y, f_z)$. The particles are sufficiently small that a brownian motion term from thermal agitation also had to be added to the deterministic forces. Following [2], these forces are used to compute the new position of the particle.
 
@@ -331,88 +331,3 @@ Fine tuning on an experimental dataset would be very interesting and would proba
 6. deep regression  - https://arxiv.org/pdf/1803.08450.pdf
 7. https://blocklab.stanford.edu/optical_tweezers.html
 8. https://neurophysics.ucsd.edu/courses/physics_173_273/optical_trap_guide.pdf
-
-
-
-# Storage Documentation
-## Data
-### General Naming Scheme: 
-
-(type)-data-(changing variable(s))-(simulation time)-(sampling rate)
-
-### Examples
-- cont-data-n-1-10: continuous data varying refractive index, one second simulation time with sampling rate of 10.
-- disc6-data-r-01-1: discretely varying data of 6 classes varying radius, 0.1 second simulation time with sampling rate of 1.
-
-## Models
-### General Naming Scheme:
-
-(model)-(label variable(s))-(type)-(axes)
-
-### Examples
-- resnet3-r-classify-xz: ResNet3 radius classification model on the xz axes.
-- resnet3-nr-regression-xyz: ResNet3 radius and refractive index regression model run on the xyz axes.
-
-## History file
-For given model add -history.csv at the end.
-
-# Progress
-## 15/1/2020
-- So far:
-    - ResNet 5 and 10 class classifier working to 99% accuracy on the testing set.
-    - Trained 1000 epoch model for the 5 class classifier.
-    - Regression ResNet coded and tested on low epoch runs (100-200) including 10000 examples, seeing 10-15% MAPE and a gap between training and testing set. Probable overfitting.
-- To do:
-    - Tighten up the possible range for regression model.
-    - Figure out the overfitting problem
-        - y force axis, linear vs. circular polarisation and information correlation between x and y.
-    - Tighten up simulation, aim to get a longer time window. Probably go with longer simulation and sampling a portion of the points.
-      - Compare this with previous results
-    - Heatmap or analysis of point that tend not to classified/regressed correctly.
-    - Code for analysis of simulated data (eg. position plots, histograms etc.)
- 
- ## 22/1/2020
-
-- So far:
-  - Spent last few days days tightening up the simulation
-    - Add in the capacity for generating data with varying refractive index.
-    - The simulation now stores values in the format (simulations, time series length, axes) and saves them as they go.
-    - Add capacity for down-sampling the number of points generated to save on storage space as well as the length of time series passed to the model
-  - Built functions for visualizing and summarizing the data generated but more can be done.
-- To do:
-  - Run some models on various ranges
-  - Make network and data clean general (i.e. two dimensional)
-  - Get some large datasets generated
-  - Analyse the advantage of the longer simulation window.
-  - Work on y axis and polarisation stuff.
-  - Nail down radius and n ranges where well behaved.
-
-
-## 29/1/2020
-- So Far:
-  - Happy with performance for 600 epochs on refractive index regression. Ready to move onto full generality of model where I think a lot of the ideas about overfitting/tightening up the models can be applied. 
-  - Adding in y axis forces has very little cost in time and seems to help with over fitting
-- To do:
-  - Create heatmap/3d plots of std and correlations
-  - Figure out combinations of valid values.
-  - Generate dataset iteratively
-  
-  - Generate heatmap to diagnose 
-  - Read about multiple outputs
-  - Breakdown error by variable and by validation and testing.
-  
-## 5/2/2020
-- So far:
-  - Smarter method of simulating points, perhaps sampling within a non random grid to ensure there is enough coverage of parameter space or making less likely to generate a point close to other points.
-  - Training and testing separated at the simulation stage. 
-  - Some tools for visualizing the data
-- To do:
-  - Smarter sampling of the training and testing sets?
-  - Iterative point generation needs to work with testing and training sets.
-  - Fix data leakage by rewriting the data generation and processing functions.
-
-## 12/2/2020
-- So far:
-  - Fixed data leak and completely reworked simulation and processing.
-  - Fixed incorrect computation of gamma where hardcoded 'radius' was used instead of 'r' variable. 
-  - Generated new 15000 point dataset and began training new network after mistakes were fixed.
