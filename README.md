@@ -323,11 +323,11 @@ Currently the training data covers a fairly small area of the total feasible rad
 Fine tuning on an experimental dataset would be very interesting and would probably allow for tweaking of simulated datasets (i.e. sampling rate and observation times) for generating a better training set. This would also give a better idea of the feasibilty of the model on real life data.
 
 # References
-1. Deep learning for time series classification: a review (2019): https://arxiv.org/pdf/1809.04356.pdf
-2. Simulation of a Brownian particle in an optical trap (2013): https://aapt-scitation-org.ezproxy.library.uq.edu.au/doi/full/10.1119/1.4772632
-3. https://cs231n.github.io/convolutional-networks/
-4. https://towardsdatascience.com/how-to-use-convolutional-neural-networks-for-time-series-classification-56b1b0a07a57
-5. resnet - https://arxiv.org/abs/1512.03385
-6. deep regression  - https://arxiv.org/pdf/1803.08450.pdf
-7. https://blocklab.stanford.edu/optical_tweezers.html
-8. https://neurophysics.ucsd.edu/courses/physics_173_273/optical_trap_guide.pdf
+1. Ismail Fawaz, H., Forestier, G., Weber, J., Idoumghar, L. and Muller, P. (2019). Deep learning for time series classification: a review. Data Mining and Knowledge Discovery, 33(4), pp.917-963.
+2. Volpe, G. and Volpe, G. (2013). Simulation of a Brownian particle in an optical trap. American Journal of Physics, 81(3), pp.224-230.
+3. Cs231n.github.io. (2020). CS231n Convolutional Neural Networks for Visual Recognition. [online] Available at: https://cs231n.github.io/convolutional-networks/ [Accessed 24 Feb. 2020].
+4. Medium. (2020). How to Use Convolutional Neural Networks for Time Series Classification. [online] Available at: https://towardsdatascience.com/how-to-use-convolutional-neural-networks-for-time-series-classification-56b1b0a07a57 [Accessed 24 Feb. 2020].
+5. He, K., Zhang, X., Ren, S. and Sun, J., 2016. Deep residual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 770-778).
+6. Lathuilière, S., Mesejo, P., Alameda-Pineda, X. and Horaud, R., 2019. A comprehensive analysis of deep regression. IEEE transactions on pattern analysis and machine intelligence.
+7. Blocklab.stanford.edu. (2020). Block lab - Optical tweezers. [online] Available at: https://blocklab.stanford.edu/optical_tweezers.html [Accessed 24 Feb. 2020].
+8. Neurophysics.ucsd.edu. (2020). [online] Available at: https://neurophysics.ucsd.edu/courses/physics_173_273/optical_trap_guide.pdf [Accessed 24 Feb. 2020].
