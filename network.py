@@ -9,20 +9,6 @@ import tensorflow as tf
 import keras
 
 
-def modelmk1():
-    """ Builder function for the mk1 model. """
-    size = 64
-    features = 6
-    model = keras.Sequential([
-    keras.layers.Dense(size, activation="relu", input_shape=(features,)),
-    keras.layers.Dense(size, activation="relu"),
-    keras.layers.Dense(1),
-    ])
-    model.compile(optimizer='adam', loss='mse', metrics=['mae', 'mape'])
-
-    return model
-
-
 class ResNetTS():
     """ 
     Class for a ResNet time series classification and regression model for multiple force axes. Architecture based off of the paper: 'Deep learning for time series classification: a review'.
